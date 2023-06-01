@@ -1,5 +1,6 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
+import co.edu.usbcali.airlinesapp.dtos.AeropuertoDTO;
 import co.edu.usbcali.airlinesapp.dtos.AvionDTO;
 import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
 import co.edu.usbcali.airlinesapp.services.interfaces.AvionService;
@@ -23,7 +24,7 @@ public class AvionController {
         this.avionService = avionService;
     }
 
-    @PostMapping(path = "/guardar-avion",
+    @PostMapping(path = "/guardarAvion",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity guardarAvion(@RequestBody AvionDTO avionDTO) {
@@ -34,17 +35,17 @@ public class AvionController {
         }
     }
 
-    @GetMapping("/obtener-aviones")
+    @GetMapping("/obtenerAviones")
     public ResponseEntity<List<AvionDTO>> obtenerAviones() {
         return new ResponseEntity(avionService.obtenerAviones(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-avionesActivos")
+    @GetMapping("/obtenerAvionesActivos")
     public ResponseEntity<List<AvionDTO>> obtenerAvionesActivos() {
         return new ResponseEntity(avionService.obtenerAvionesActivos(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-avion/{idAvion}")
+    @GetMapping("/obtenerAvion/{idAvion}")
     public ResponseEntity<AvionDTO> obtenerAvion(@PathVariable("idAvion") Integer idAvion) {
         try {
             return new ResponseEntity(avionService.obtenerAvionPorId(idAvion), HttpStatus.OK);
@@ -53,21 +54,13 @@ public class AvionController {
         }
     }
 
-    @PutMapping(path = "/actualizar-avion",
+
+    @PutMapping(value = "/actualizarAvion/{idAvion}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarAvion(@RequestBody AvionDTO avionDTO) {
         try {
             return new ResponseEntity(avionService.actualizarAvion(avionDTO), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/eliminar-avion/{idAvion}")
-    public ResponseEntity eliminarAvion(@PathVariable("idAvion") Integer idAvion) {
-        try {
-            return new ResponseEntity(avionService.eliminarAvion(idAvion), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }

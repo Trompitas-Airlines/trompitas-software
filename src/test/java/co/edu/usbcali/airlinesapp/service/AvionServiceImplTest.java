@@ -30,20 +30,17 @@ public class AvionServiceImplTest {
         Avion.builder()
                 .idAvion(1)
                 .modelo("Boeing 737")
-                .aerolinea("Avianca")
                 .estado("A")
                 .build();
 
         List<Avion> aviones = Arrays.asList(Avion.builder()
                         .idAvion(1)
                         .modelo("Boeing 737")
-                        .aerolinea("Avianca")
                         .estado("A")
                         .build(),
                 Avion.builder()
                         .idAvion(2)
                         .modelo("Boeing 747")
-                        .aerolinea("Wingo")
                         .estado("A")
                         .build());
 
@@ -71,7 +68,6 @@ public class AvionServiceImplTest {
         Avion avion = Avion.builder()
                 .idAvion(1)
                 .modelo("Boeing 737-800")
-                .aerolinea("Avianca")
                 .estado("A")
                 .build();
 

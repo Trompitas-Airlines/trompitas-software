@@ -1,5 +1,6 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
+import co.edu.usbcali.airlinesapp.dtos.AeropuertoDTO;
 import co.edu.usbcali.airlinesapp.dtos.FacturaDTO;
 import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
 import co.edu.usbcali.airlinesapp.services.interfaces.FacturaService;
@@ -23,7 +24,7 @@ public class FacturaController {
         this.facturaService = facturaService;
     }
 
-    @PostMapping(path = "/guardar-factura",
+    @PostMapping(path = "/guardarFactura",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity guardarFactura(@RequestBody FacturaDTO facturaDTO) {
@@ -34,17 +35,17 @@ public class FacturaController {
         }
     }
 
-    @GetMapping("/obtener-facturas")
+    @GetMapping("/obtenerFacturas")
     public ResponseEntity<List<FacturaDTO>> obtenerFacturas() {
         return new ResponseEntity(facturaService.obtenerFacturas(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-facturasActivas")
+    @GetMapping("/obtenerFacturasActivas")
     public ResponseEntity<List<FacturaDTO>> obtenerFacturasActivas() {
         return new ResponseEntity(facturaService.obtenerFacturasActivas(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-factura/{idFactura}")
+    @GetMapping("/obtenerFactura/{idFactura}")
     public ResponseEntity<FacturaDTO> obtenerFactura(@PathVariable("idFactura") Integer idFactura) {
         try {
             return new ResponseEntity(facturaService.obtenerFacturaPorId(idFactura), HttpStatus.OK);
@@ -53,7 +54,7 @@ public class FacturaController {
         }
     }
 
-    @GetMapping("/obtener-facturasReserva/{idReserva}")
+    @GetMapping("/obtenerFacturasReserva/{idReserva}")
     public ResponseEntity<List<FacturaDTO>> obtenerFacturasReserva(@PathVariable("idReserva") Integer idReserva) {
         try {
             return new ResponseEntity(facturaService.obtenerFacturasPorIdReserva(idReserva), HttpStatus.OK);
@@ -62,21 +63,13 @@ public class FacturaController {
         }
     }
 
-    @PutMapping(path = "/actualizar-factura",
+
+    @PutMapping(value = "/actualizarFactura/{idFactura}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarFactura(@RequestBody FacturaDTO facturaDTO) {
         try {
             return new ResponseEntity(facturaService.actualizarFactura(facturaDTO), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/eliminar-factura/{idFactura}")
-    public ResponseEntity eliminarFactura(@PathVariable("idFactura") Integer idFactura) {
-        try {
-            return new ResponseEntity(facturaService.eliminarFactura(idFactura), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }

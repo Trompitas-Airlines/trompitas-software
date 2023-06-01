@@ -23,7 +23,7 @@ public class AeropuertoController {
         this.aeropuertoService = aeropuertoService;
     }
 
-    @PostMapping(path = "/guardar-aeropuerto",
+    @PostMapping(path = "/guardarAeropuerto",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity guardarAeropuerto(@RequestBody AeropuertoDTO aeropuertoDTO) {
@@ -35,17 +35,17 @@ public class AeropuertoController {
         }
     }
 
-    @GetMapping("/obtener-aeropuertos")
+    @GetMapping("/obtenerAeropuertos")
     public ResponseEntity<List<AeropuertoDTO>> obtenerAeropuertos() {
         return new ResponseEntity(aeropuertoService.obtenerAeropuertos(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-aeropuertosActivos")
+    @GetMapping("/obtenerAeropuertosActivos")
     public ResponseEntity<List<AeropuertoDTO>> obtenerAeropuertosActivos() {
         return new ResponseEntity(aeropuertoService.obtenerAeropuertosActivos(), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/obtener-aeropuerto/{idAeropuerto}")
+    @GetMapping(value = "/obtenerAeropuerto/{idAeropuerto}")
     public ResponseEntity<AeropuertoDTO> obtenerAeropuerto(@PathVariable("idAeropuerto") Integer idAeropuerto) {
         try {
             return new ResponseEntity(aeropuertoService.obtenerAeropuertoPorId(idAeropuerto), HttpStatus.OK);
@@ -54,21 +54,12 @@ public class AeropuertoController {
         }
     }
 
-    @PutMapping(path = "/actualizar-aeropuerto",
+    @PutMapping(value = "/actualizarAeropuerto/{idAeropuerto}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarAeropuerto(@RequestBody AeropuertoDTO aeropuertoDTO) {
         try {
             return new ResponseEntity(aeropuertoService.actualizarAeropuerto(aeropuertoDTO), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping(value = "/eliminar-aeropuerto/{idAeropuerto}")
-    public ResponseEntity eliminarAeropuerto(@PathVariable("idAeropuerto") Integer idAeropuerto) {
-        try {
-            return new ResponseEntity(aeropuertoService.eliminarAeropuerto(idAeropuerto), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }

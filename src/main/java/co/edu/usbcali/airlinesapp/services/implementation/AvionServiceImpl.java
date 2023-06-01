@@ -25,8 +25,6 @@ public class AvionServiceImpl implements AvionService {
             throw new Exception("El avión no puede ser nulo");
         } if (avionDTO.getModelo() == null || avionDTO.getModelo().isBlank() || avionDTO.getModelo().trim().isEmpty()) {
             throw new Exception("El modelo del avión no puede ser nulo o vacío");
-        } if (avionDTO.getAerolinea() == null || avionDTO.getAerolinea().isBlank() || avionDTO.getAerolinea().trim().isEmpty()) {
-            throw new Exception("La aerolínea del avíón no puede ser nula o vacía");
         } if (avionDTO.getEstado() == null || avionDTO.getEstado().isBlank() || avionDTO.getEstado().trim().isEmpty()) {
             throw new Exception("El estado del avión no puede ser nulo o vacío");
         }
@@ -67,7 +65,6 @@ public class AvionServiceImpl implements AvionService {
         AvionDTO avionSavedDTO = obtenerAvionPorId(avionDTO.getIdAvion());
 
         avionSavedDTO.setModelo(avionDTO.getModelo());
-        avionSavedDTO.setAerolinea(avionDTO.getAerolinea());
         avionSavedDTO.setEstado(avionDTO.getEstado());
 
         return guardarAvion(avionSavedDTO);

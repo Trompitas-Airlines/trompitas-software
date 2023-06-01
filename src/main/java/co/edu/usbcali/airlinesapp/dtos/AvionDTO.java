@@ -12,6 +12,5 @@ import lombok.ToString;
 public class AvionDTO {
         private Integer idAvion;
         private String modelo;
-        private String aerolinea;
         private String estado;
 }

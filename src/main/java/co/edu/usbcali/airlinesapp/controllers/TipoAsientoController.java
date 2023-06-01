@@ -1,6 +1,7 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
 import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
+import co.edu.usbcali.airlinesapp.dtos.RolUsuarioDTO;
 import co.edu.usbcali.airlinesapp.dtos.TipoAsientoDTO;
 import co.edu.usbcali.airlinesapp.services.interfaces.TipoAsientoService;
 
@@ -23,7 +24,7 @@ public class TipoAsientoController {
         this.tipoAsientoService = tipoAsientoService;
     }
 
-    @PostMapping(path = "/guardar-tipoAsiento",
+    @PostMapping(path = "/guardarTipoAsiento",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity guardarTipoAsiento(@RequestBody TipoAsientoDTO tipoAsientoDTO) {
@@ -34,17 +35,17 @@ public class TipoAsientoController {
         }
     }
 
-    @GetMapping("/obtener-tipoAsientos")
+    @GetMapping("/obtenerTipoAsientos")
     public ResponseEntity<List<TipoAsientoDTO>> obtenerTipoAsientos() {
         return new ResponseEntity(tipoAsientoService.obtenerTipoAsientos(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-tipoAsientosActivos")
+    @GetMapping("/obtenerTipoAsientosActivos")
     public ResponseEntity<List<TipoAsientoDTO>> obtenerTipoAsientosActivos() {
         return new ResponseEntity(tipoAsientoService.obtenerTipoAsientosActivos(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-tipoAsiento/{idTipoAsiento}")
+    @GetMapping("/obtenerTipoAsiento/{idTipoAsiento}")
     public ResponseEntity<TipoAsientoDTO> obtenerTipoAsiento(@PathVariable("idTipoAsiento") Integer idTipoAsiento) {
         try {
             return new ResponseEntity(tipoAsientoService.obtenerTipoAsientoPorId(idTipoAsiento), HttpStatus.OK);
@@ -53,21 +54,13 @@ public class TipoAsientoController {
         }
     }
 
-    @PutMapping(path = "/actualizar-tipoAsiento",
+
+    @PutMapping(value = "/actualizarTipoAsiento/{idTipoAsiento}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarTipoAsiento(@RequestBody TipoAsientoDTO tipoAsientoDTO) {
         try {
             return new ResponseEntity(tipoAsientoService.actualizarTipoAsiento(tipoAsientoDTO), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/eliminar-tipoAsiento/{idTipoAsiento}")
-    public ResponseEntity eliminarTipoAsiento(@PathVariable("idTipoAsiento") Integer idTipoAsiento) {
-        try {
-            return new ResponseEntity(tipoAsientoService.eliminarTipoAsiento(idTipoAsiento), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }

@@ -1,5 +1,6 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
+import co.edu.usbcali.airlinesapp.dtos.AeropuertoDTO;
 import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
 import co.edu.usbcali.airlinesapp.dtos.ReservaDTO;
 import co.edu.usbcali.airlinesapp.services.interfaces.ReservaService;
@@ -23,7 +24,7 @@ public class ReservaController {
         this.reservaService = reservaService;
     }
 
-    @PostMapping(path = "/guardar-reserva",
+    @PostMapping(path = "/guardarReserva",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity guardarReserva(@RequestBody ReservaDTO reservaDTO) {
@@ -34,17 +35,17 @@ public class ReservaController {
         }
     }
 
-    @GetMapping("/obtener-reservas")
+    @GetMapping("/obtenerReservas")
     public ResponseEntity<List<ReservaDTO>> obtenerReservas() {
         return new ResponseEntity(reservaService.obtenerReservas(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-reservasActivas")
+    @GetMapping("/obtenerReservasActivas")
     public ResponseEntity<List<ReservaDTO>> obtenerReservasActivas() {
         return new ResponseEntity(reservaService.obtenerReservasActivas(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-reserva/{idReserva}")
+    @GetMapping("/obtenerReserva/{idReserva}")
     public ResponseEntity<ReservaDTO> obtenerReserva(@PathVariable("idReserva") Integer idReserva) {
         try {
             return new ResponseEntity(reservaService.obtenerReservaPorId(idReserva), HttpStatus.OK);
@@ -53,7 +54,7 @@ public class ReservaController {
         }
     }
 
-    @GetMapping("/obtener-reservasVuelo/{idVuelo}")
+    @GetMapping("/obtenerReservasVuelo/{idVuelo}")
     public ResponseEntity<ReservaDTO> obtenerReservasVuelo(@PathVariable("idVuelo") Integer idVuelo) {
         try {
             return new ResponseEntity(reservaService.obtenerReservasPorIdVuelo(idVuelo), HttpStatus.OK);
@@ -62,7 +63,7 @@ public class ReservaController {
         }
     }
 
-    @GetMapping("/obtener-reservasUsuario/{cedula}")
+    @GetMapping("/obtenerReservasUsuario/{cedula}")
     public ResponseEntity<ReservaDTO> obtenerReservasUsuario(@PathVariable("cedula") String cedula) {
         try {
             return new ResponseEntity(reservaService.obtenerReservasPorCedula(cedula), HttpStatus.OK);
@@ -71,7 +72,7 @@ public class ReservaController {
         }
     }
 
-    @PutMapping(path = "/actualizar-reserva",
+    @PutMapping(value = "/actualizarReserva/{cedula}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarReserva(@RequestBody ReservaDTO reservaDTO) {
@@ -82,12 +83,5 @@ public class ReservaController {
         }
     }
 
-    @PutMapping("/eliminar-reserva/{idReserva}")
-    public ResponseEntity eliminarReserva(@PathVariable("idReserva") Integer idReserva) {
-        try {
-            return new ResponseEntity(reservaService.eliminarReserva(idReserva), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
-        }
-    }
+
 }

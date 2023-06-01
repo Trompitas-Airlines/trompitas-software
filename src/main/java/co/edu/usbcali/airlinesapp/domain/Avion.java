@@ -25,9 +25,6 @@ public class Avion implements Serializable {
     @Column(name = "modelo", nullable = false, length = 30)
     private String modelo;
 
-    @Column(name = "aerolinea", nullable = false, length = 30)
-    private String aerolinea;
-
     @Column(name = "estado", nullable = false, length = 1)
     private String estado;
 }

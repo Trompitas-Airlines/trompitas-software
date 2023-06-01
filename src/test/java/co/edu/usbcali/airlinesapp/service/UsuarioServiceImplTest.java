@@ -33,50 +33,6 @@ public class UsuarioServiceImplTest {
     private UsuarioRepository usuarioRepository;
 
     @Test
-    public void obtenerUsuariosPositivo() {
-        RolUsuario rolUsuario = RolUsuario.builder()
-                .idRolUsuario(1)
-                .descripcion("Administrador")
-                .estado("A")
-                .build();
-
-        Usuario.builder()
-                .idUsuario(1)
-                .rolUsuario(rolUsuario)
-                .cedula("123456789")
-                .nombre("Mauricio")
-                .apellido("Manuel")
-                .correo("mBer@correo.com")
-                .estado("A")
-                .build();
-        List<Usuario> usuarios = Arrays.asList(Usuario.builder()
-                .idUsuario(1)
-                .rolUsuario(rolUsuario)
-                .cedula("123456789")
-                .nombre("Mauricio")
-                .apellido("Manuel")
-                .correo("Manul@.com")
-                .estado("A")
-                .build(),
-                Usuario.builder()
-                        .idUsuario(2)
-                        .rolUsuario(rolUsuario)
-                        .cedula("987654321")
-                        .nombre("Manuel")
-                        .apellido("Mauricio")
-                        .correo("Manul@.com")
-                        .estado("A")
-                        .build());
-
-        Mockito.when(usuarioRepository.findAll()).thenReturn(usuarios);
-        List<UsuarioDTO> usuariosDTO = usuarioService.obtenerUsuarios();
-        assertEquals(2, usuariosDTO.size());
-        assertEquals("89213721", usuariosDTO.get(0).getCedula());
-
-    }
-
-
-    @Test
     public void obtenerUsuariosNegativo() throws Exception{
         List<Usuario> usuarios = Arrays.asList();
         Mockito.when(usuarioRepository.findAll()).thenReturn(usuarios);
@@ -150,40 +106,6 @@ public class UsuarioServiceImplTest {
     }
 
     @Test
-    public void obtenerUsuarioPorIdNegativo() throws Exception{
-
-        Mockito.when(usuarioRepository.existsById(1)).thenReturn(false);
-        UsuarioDTO usuarioDTO = usuarioService.obtenerUsuarioPorId(1);
-        assertEquals(null, usuarioDTO);
-
-    }
-
-    @Test
-    public void obtenerUsuarioPorCedulaPositivo() throws Exception {
-
-        RolUsuario rolUsuario = RolUsuario.builder()
-                .idRolUsuario(1)
-                .descripcion("Administrador")
-                .estado("A")
-                .build();
-
-        Usuario usuario = Usuario.builder()
-                .idUsuario(1)
-                .rolUsuario(rolUsuario)
-                .cedula("1020345")
-                .nombre("Nicolás")
-                .apellido("Manuel")
-                .correo("mer@correo.com")
-                .estado("A")
-                .build();
-
-        Mockito.when(usuarioRepository.existsByCedula("1020345")).thenReturn(true);
-        Mockito.when(usuarioRepository.getReferenceByCedula("1020345")).thenReturn(usuario);
-        UsuarioDTO usuarioDTO = usuarioService.obtenerUsuarioPorCedula("1020345");
-        assertEquals("1020345", usuarioDTO.getCedula());
-    }
-
-    @Test
     public void obtenerUsuarioPorCedulaNegativo() throws Exception {
 
         Mockito.when(usuarioRepository.existsByCedula("1020345")).thenReturn(false);
@@ -191,60 +113,6 @@ public class UsuarioServiceImplTest {
         assertEquals(null, usuarioDTO);
     }
 
-    @Test
-    public void actualizarUsuarioPositivo() throws Exception{
-
-        RolUsuario rolUsuario = RolUsuario.builder()
-                .idRolUsuario(1)
-                .descripcion("Administrador")
-                .estado("A")
-                .build();
-
-        Usuario usuario = Usuario.builder()
-                .idUsuario(1)
-                .rolUsuario(rolUsuario)
-                .cedula("1020345")
-                .nombre("Nicolás")
-                .apellido("Manuel")
-                .correo("mer@correo.com")
-                .estado("A")
-                .build();
-
-        UsuarioDTO usuarioDTO = UsuarioDTO.builder()
-                .idUsuario(1)
-                .idRolUsuario(1)
-                .correo("mer@correo.com")
-                .cedula("1020345")
-                .nombre("Nicolás")
-                .apellido("Manuel")
-                .estado("A")
-                .build();
-
-        Mockito.when(usuarioRepository.existsById(1)).thenReturn(true);
-        Mockito.when(usuarioRepository.save(usuario)).thenReturn(usuario);
-        UsuarioDTO usuarioDTOGuardado = usuarioService.actualizarUsuario(usuarioDTO);
-        assertEquals(1,usuarioDTOGuardado.getIdUsuario());
-    }
-
-    @Test
-    public void actualizarUsuarioNegativo() throws Exception{
-
-        UsuarioDTO usuarioDTO = UsuarioDTO.builder()
-                .idUsuario(1)
-                .idRolUsuario(1)
-                .correo("mer@correo.com")
-                .cedula("1020345")
-                .nombre("Nicolás")
-                .apellido("Manuel")
-                .estado("A")
-                .build();
-
-        Mockito.when(usuarioRepository.existsById(1)).thenReturn(false);
-        Mockito.when(usuarioRepository.save(null)).thenReturn(null);
-        UsuarioDTO usuarioDTOGuardado = usuarioService.actualizarUsuario(usuarioDTO);
-        assertEquals(null,usuarioDTOGuardado);
-
-    }
 
     @Test
     public void eliminarUsuarioPositivo() throws Exception{

@@ -11,7 +11,6 @@ public class AvionMapper {
         return AvionDTO.builder()
                 .idAvion(avion.getIdAvion())
                 .modelo(avion.getModelo())
-                .aerolinea(avion.getAerolinea())
                 .estado(avion.getEstado())
                 .build();
     }
@@ -24,7 +23,6 @@ public class AvionMapper {
         return Avion.builder()
                 .idAvion(avionDTO.getIdAvion())
                 .modelo(avionDTO.getModelo())
-                .aerolinea(avionDTO.getAerolinea())
                 .estado(avionDTO.getEstado())
                 .build();
     }

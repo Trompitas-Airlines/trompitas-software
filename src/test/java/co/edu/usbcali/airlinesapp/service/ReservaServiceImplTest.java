@@ -58,7 +58,6 @@ public class ReservaServiceImplTest {
         Avion avion = Avion.builder()
                 .idAvion(1)
                 .modelo("Boeing 737")
-                .aerolinea("Avianca")
                 .estado("A")
                 .build();
 
@@ -169,7 +168,6 @@ public class ReservaServiceImplTest {
         Avion avion = Avion.builder()
                 .idAvion(1)
                 .modelo("Boeing 737")
-                .aerolinea("Avianca")
                 .estado("A")
                 .build();
 

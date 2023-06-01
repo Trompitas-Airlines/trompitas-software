@@ -1,6 +1,7 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
 import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
+import co.edu.usbcali.airlinesapp.dtos.TrayectoDTO;
 import co.edu.usbcali.airlinesapp.dtos.UsuarioDTO;
 import co.edu.usbcali.airlinesapp.services.interfaces.UsuarioService;
 
@@ -23,7 +24,7 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    @PostMapping(path = "/guardar-usuario",
+    @PostMapping(path = "/guardarUsuario",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity guardarUsuario(@RequestBody UsuarioDTO usuarioDTO) {
@@ -34,17 +35,17 @@ public class UsuarioController {
         }
     }
 
-    @GetMapping("/obtener-usuarios")
+    @GetMapping("/obtenerUsuarios")
     public ResponseEntity<List<UsuarioDTO>> obtenerUsuarios() {
         return new ResponseEntity(usuarioService.obtenerUsuarios(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-usuariosActivos")
+    @GetMapping("/obtenerUsuariosActivos")
     public ResponseEntity<List<UsuarioDTO>> obtenerUsuariosActivos() {
         return new ResponseEntity(usuarioService.obtenerUsuariosActivos(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-usuarioId/{idUsuario}")
+    @GetMapping("/obtenerUsuarioId/{idUsuario}")
     public ResponseEntity<UsuarioDTO> obtenerUsuarioPorId(@PathVariable("idUsuario") Integer idUsuario) {
         try {
             return new ResponseEntity(usuarioService.obtenerUsuarioPorId(idUsuario), HttpStatus.OK);
@@ -53,7 +54,7 @@ public class UsuarioController {
         }
     }
 
-    @GetMapping("/obtener-usuarioCedula/{cedula}")
+    @GetMapping("/obtenerUsuarioCedula/{cedula}")
     public ResponseEntity<UsuarioDTO> obtenerUsuarioPorCedula(@PathVariable("cedula") String cedula) {
         try {
             return new ResponseEntity(usuarioService.obtenerUsuarioPorCedula(cedula), HttpStatus.OK);
@@ -62,21 +63,13 @@ public class UsuarioController {
         }
     }
 
-    @PutMapping(path = "/actualizar-usuario",
+
+    @PutMapping(value = "/actualizarUsuario/{idUsuario}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarUsuario(@RequestBody UsuarioDTO usuarioDTO) {
         try {
             return new ResponseEntity(usuarioService.actualizarUsuario(usuarioDTO), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/eliminar-usuario/{idUsuario}")
-    public ResponseEntity eliminarUsuario(@PathVariable("idUsuario") Integer idUsuario) {
-        try {
-            return new ResponseEntity(usuarioService.eliminarUsuario(idUsuario), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }

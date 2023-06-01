@@ -1,5 +1,6 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
+import co.edu.usbcali.airlinesapp.dtos.AeropuertoDTO;
 import co.edu.usbcali.airlinesapp.dtos.AsientoDTO;
 import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
 import co.edu.usbcali.airlinesapp.services.interfaces.AsientoService;
@@ -23,7 +24,7 @@ public class AsientoController {
         this.asientoService = asientoService;
     }
 
-    @PostMapping(path = "/guardar-asiento",
+    @PostMapping(path = "/guardarAsiento",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity guardarAsiento(@RequestBody AsientoDTO asientoDTO) {
@@ -34,17 +35,17 @@ public class AsientoController {
         }
     }
 
-    @GetMapping("/obtener-asientos")
+    @GetMapping("/obtenerAsientos")
     public ResponseEntity<List<AsientoDTO>> obtenerAsientos() {
         return new ResponseEntity(asientoService.obtenerAsientos(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-asientosActivos")
+    @GetMapping("/obtenerAsientosActivos")
     public ResponseEntity<List<AsientoDTO>> obtenerAsientosActivos() {
         return new ResponseEntity(asientoService.obtenerAsientosActivos(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-asiento/{idAsiento}")
+    @GetMapping("/obtenerAsiento/{idAsiento}")
     public ResponseEntity<AsientoDTO> obtenerAsiento(@PathVariable("idAsiento") Integer idAsiento) {
         try {
             return new ResponseEntity(asientoService.obtenerAsientoPorId(idAsiento), HttpStatus.OK);
@@ -53,21 +54,13 @@ public class AsientoController {
         }
     }
 
-    @PutMapping(path = "/actualizar-asiento",
+
+    @PutMapping(value = "/eliminarAsiento/{idAsiento}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarAsiento(@RequestBody AsientoDTO asientoDTO) {
         try {
             return new ResponseEntity(asientoService.actualizarAsiento(asientoDTO), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/eliminar-asiento/{idAsiento}")
-    public ResponseEntity eliminarAsiento(@PathVariable("idAsiento") Integer idAsiento) {
-        try {
-            return new ResponseEntity(asientoService.eliminarAsiento(idAsiento), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }

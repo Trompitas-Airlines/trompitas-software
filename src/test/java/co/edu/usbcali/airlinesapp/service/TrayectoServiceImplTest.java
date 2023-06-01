@@ -42,7 +42,6 @@ public class TrayectoServiceImplTest {
         Avion avion = Avion.builder()
                 .idAvion(1)
                 .modelo("Boeing 737")
-                .aerolinea("Avianca")
                 .estado("A")
                 .build();
 
@@ -123,7 +122,6 @@ public class TrayectoServiceImplTest {
         Avion avion = Avion.builder()
                 .idAvion(1)
                 .modelo("Boeing 737")
-                .aerolinea("Avianca")
                 .estado("A")
                 .build();
 

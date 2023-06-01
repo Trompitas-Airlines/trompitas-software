@@ -1,6 +1,7 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
 import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
+import co.edu.usbcali.airlinesapp.dtos.TipoAsientoDTO;
 import co.edu.usbcali.airlinesapp.dtos.TrayectoDTO;
 import co.edu.usbcali.airlinesapp.services.interfaces.TrayectoService;
 
@@ -23,7 +24,7 @@ public class TrayectoController {
         this.trayectoService = trayectoService;
     }
 
-    @PostMapping(path = "/guardar-trayecto",
+    @PostMapping(path = "/guardarTrayecto",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity guardarTrayecto(@RequestBody TrayectoDTO trayectoDTO) {
@@ -34,17 +35,17 @@ public class TrayectoController {
         }
     }
 
-    @GetMapping("/obtener-trayectos")
+    @GetMapping("/obtenerTrayectos")
     public ResponseEntity<List<TrayectoDTO>> obtenerTrayectos() {
         return new ResponseEntity(trayectoService.obtenerTrayectos(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-trayectosActivos")
+    @GetMapping("/obtenerTrayectosActivos")
     public ResponseEntity<List<TrayectoDTO>> obtenerTrayectosActivos() {
         return new ResponseEntity(trayectoService.obtenerTrayectosActivos(), HttpStatus.OK);
     }
 
-    @GetMapping("/obtener-trayecto/{idTrayecto}")
+    @GetMapping("/obtenerTrayecto/{idTrayecto}")
     public ResponseEntity<TrayectoDTO> obtenerTrayecto(@PathVariable("idTrayecto") Integer idTrayecto) {
         try {
             return new ResponseEntity(trayectoService.obtenerTrayectoPorId(idTrayecto), HttpStatus.OK);
@@ -53,21 +54,13 @@ public class TrayectoController {
         }
     }
 
-    @PutMapping(path = "/actualizar-trayecto",
+
+    @PutMapping(value = "/actualizarTrayecto/{idTrayecto}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarTrayecto(@RequestBody TrayectoDTO trayectoDTO) {
         try {
             return new ResponseEntity(trayectoService.actualizarTrayecto(trayectoDTO), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/eliminar-trayecto/{idTrayecto}")
-    public ResponseEntity eliminarTrayecto(@PathVariable("idTrayecto") Integer idTrayecto) {
-        try {
-            return new ResponseEntity(trayectoService.eliminarTrayecto(idTrayecto), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }
