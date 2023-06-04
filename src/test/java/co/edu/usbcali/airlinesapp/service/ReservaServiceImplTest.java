@@ -1,223 +1,147 @@
 package co.edu.usbcali.airlinesapp.service;
 
-import co.edu.usbcali.airlinesapp.domain.*;
 import co.edu.usbcali.airlinesapp.dtos.ReservaDTO;
+import co.edu.usbcali.airlinesapp.repository.AsientoRepository;
 import co.edu.usbcali.airlinesapp.repository.ReservaRepository;
-import co.edu.usbcali.airlinesapp.services.interfaces.ReservaService;
-
+import co.edu.usbcali.airlinesapp.repository.UsuarioRepository;
+import co.edu.usbcali.airlinesapp.repository.VueloRepository;
+import co.edu.usbcali.airlinesapp.services.implementation.ReservaServiceImpl;
+import co.edu.usbcali.airlinesapp.utilities.AsientoUtility;
+import co.edu.usbcali.airlinesapp.utilities.ReservaUtility;
+import co.edu.usbcali.airlinesapp.utilities.UsuarioUtility;
+import co.edu.usbcali.airlinesapp.utilities.VueloUtility;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 public class ReservaServiceImplTest {
-    @Autowired
-    private ReservaService reservaService;
+    @InjectMocks
+    private ReservaServiceImpl reservaServiceImpl;
 
-    @MockBean
+    @Mock
     private ReservaRepository reservaRepository;
 
+    @Mock
+    private VueloRepository vueloRepository;
+
+    @Mock
+    private AsientoRepository asientoRepository;
+
+    @Mock
+    private UsuarioRepository usuarioRepository;
+
     @Test
-    public void obtenerReservasPositivo() {
-        Aeropuerto aeropuerto = Aeropuerto.builder()
-                .idAeropuerto(1)
-                .nombre("Aeropuerto Internacional El Dorado")
-                .iata("BOG")
-                .ubicacion("Bogotá")
-                .estado("A")
-                .build();
+    public void guardarReservaOk() throws Exception {
+        given(vueloRepository.existsById(VueloUtility.IDNUNO)).willReturn(true);
+        given(vueloRepository.getReferenceById(VueloUtility.IDNUNO)).willReturn(VueloUtility.VUELONUNO);
+        given(asientoRepository.existsById(AsientoUtility.IDNUNO)).willReturn(true);
+        given(asientoRepository.getReferenceById(AsientoUtility.IDNUNO)).willReturn(AsientoUtility.ASIENTONUNO);
+        given(usuarioRepository.existsById(UsuarioUtility.IDNUNO)).willReturn(true);
+        given(usuarioRepository.getReferenceById(UsuarioUtility.IDNUNO)).willReturn(UsuarioUtility.USUARIONUNO);
+        given(reservaRepository.existsById(ReservaUtility.IDNUNO)).willReturn(false);
+        given(reservaRepository.save(any())).willReturn(ReservaUtility.RESERVANUNO);
 
-        Vuelo vuelo = Vuelo.builder()
-                .idVuelo(1)
-                .aeropuertoOrigen(aeropuerto)
-                .aeropuertoDestino(aeropuerto)
-                .precio(100000)
-                .horaSalida(new Date())
-                .horaLlegada(new Date())
-                .precioAsientoVip(50000)
-                .precioAsientoNormal(30000)
-                .precioAsientoBasico(10000)
-                .estado("A")
-                .build();
+        ReservaDTO reservaSavedDTO = reservaServiceImpl.guardarReserva(ReservaUtility.RESERVADTONUNO);
 
-        TipoAsiento tipoAsiento = TipoAsiento.builder()
-                .idTipoAsiento(1)
-                .descripcion("Ejecutivo")
-                .estado("A")
-                .build();
-
-        Avion avion = Avion.builder()
-                .idAvion(1)
-                .modelo("Boeing 737")
-                .estado("A")
-                .build();
-
-        Asiento asiento = Asiento.builder()
-                .idAsiento(1)
-                .tipoAsiento(tipoAsiento)
-                .avion(avion)
-                .ubicacion("A1")
-                .estado("A")
-                .build();
-
-        RolUsuario rolUsuario = RolUsuario.builder()
-                .idRolUsuario(1)
-                .descripcion("Cliente")
-                .estado("A")
-                .build();
-
-        Usuario usuario = Usuario.builder()
-                .idUsuario(1)
-                .rolUsuario(rolUsuario)
-                .cedula("123456789")
-                .nombre("Santiago")
-                .apellido("García")
-                .correo("santiagogarcia@gmail.com")
-                .estado("A")
-                .build();
-
-        Reserva.builder()
-                .idReserva(1)
-                .vuelo(vuelo)
-                .asiento(asiento)
-                .usuario(usuario)
-                .precioTotal(100000)
-                .estadoPago("A")
-                .fecha(new Date())
-                .estado("A")
-                .build();
-
-        List<Reserva> reservas = Arrays.asList(Reserva.builder()
-                        .idReserva(1)
-                        .vuelo(vuelo)
-                        .asiento(asiento)
-                        .usuario(usuario)
-                        .precioTotal(100000)
-                        .estadoPago("A")
-                        .fecha(new Date())
-                        .estado("A")
-                        .build(),
-                Reserva.builder()
-                        .idReserva(2)
-                        .vuelo(vuelo)
-                        .asiento(asiento)
-                        .usuario(usuario)
-                        .precioTotal(150000)
-                        .estadoPago("A")
-                        .fecha(new Date())
-                        .estado("A")
-                        .build());
-
-        Mockito.when(reservaRepository.findAll()).thenReturn(reservas);
-
-        List<ReservaDTO> reservasDTO = reservaService.obtenerReservas();
-
-        assertEquals(2, reservasDTO.size());
-        assertEquals(100000, reservasDTO.get(0).getPrecioTotal());
+        assertEquals(ReservaUtility.IDNUNO, reservaSavedDTO.getIdReserva());
     }
 
     @Test
-    public void obtenerReservasNegativo() {
-        List<Reserva> reservas = Arrays.asList();
+    public void guardarReservaNotOk() {
+        given(reservaRepository.existsById(ReservaUtility.IDNUNO)).willReturn(true);
 
-        Mockito.when(reservaRepository.findAll()).thenReturn(reservas);
-
-        List<ReservaDTO> reservasDTO = reservaService.obtenerReservas();
-
-        assertEquals(0, reservasDTO.size());
+        assertThrows(Exception.class, () -> reservaServiceImpl.guardarReserva(ReservaUtility.RESERVADTONUNO));
     }
 
     @Test
-    public void obtenerReservaPorIdPositivo() throws Exception {
-        Aeropuerto aeropuerto = Aeropuerto.builder()
-                .idAeropuerto(1)
-                .nombre("Aeropuerto Internacional El Dorado")
-                .iata("BOG")
-                .ubicacion("Bogotá")
-                .estado("A")
-                .build();
+    public void obtenerReservasOk() {
+        given(reservaRepository.findAll()).willReturn(ReservaUtility.RESERVAS);
 
-        Vuelo vuelo = Vuelo.builder()
-                .idVuelo(1)
-                .aeropuertoOrigen(aeropuerto)
-                .aeropuertoDestino(aeropuerto)
-                .precio(100000)
-                .horaSalida(new Date())
-                .horaLlegada(new Date())
-                .precioAsientoVip(50000)
-                .precioAsientoNormal(30000)
-                .precioAsientoBasico(10000)
-                .estado("A")
-                .build();
+        List<ReservaDTO> reservasSavedDTO = reservaServiceImpl.obtenerReservas();
 
-        TipoAsiento tipoAsiento = TipoAsiento.builder()
-                .idTipoAsiento(1)
-                .descripcion("Ejecutivo")
-                .estado("A")
-                .build();
-
-        Avion avion = Avion.builder()
-                .idAvion(1)
-                .modelo("Boeing 737")
-                .estado("A")
-                .build();
-
-        Asiento asiento = Asiento.builder()
-                .idAsiento(1)
-                .tipoAsiento(tipoAsiento)
-                .avion(avion)
-                .ubicacion("A1")
-                .estado("A")
-                .build();
-
-        RolUsuario rolUsuario = RolUsuario.builder()
-                .idRolUsuario(1)
-                .descripcion("Cliente")
-                .estado("A")
-                .build();
-
-        Usuario usuario = Usuario.builder()
-                .idUsuario(1)
-                .rolUsuario(rolUsuario)
-                .cedula("123456789")
-                .nombre("Santiago")
-                .apellido("García")
-                .correo("santiagogarcia@gmail.com")
-                .estado("A")
-                .build();
-
-        Reserva reserva = Reserva.builder()
-                .idReserva(1)
-                .vuelo(vuelo)
-                .asiento(asiento)
-                .usuario(usuario)
-                .precioTotal(100000)
-                .estadoPago("A")
-                .fecha(new Date())
-                .estado("A")
-                .build();
-
-        Mockito.when(reservaRepository.existsById(1)).thenReturn(true);
-        Mockito.when(reservaRepository.getReferenceById(1)).thenReturn(reserva);
-
-        ReservaDTO reservaDTO = reservaService.obtenerReservaPorId(1);
-
-        assertEquals(1, reservaDTO.getIdUsuario());
+        assertEquals(ReservaUtility.RESERVASNSIZE, reservasSavedDTO.size());
+        assertEquals(ReservaUtility.PRECIONTOTALNUNO, reservasSavedDTO.get(0).getPrecioTotal());
     }
 
     @Test
-    public void obtenerReservaPorIdNegativo() {
-        Mockito.when(reservaRepository.existsById(1)).thenReturn(false);
+    public void obtenerReservasNotOk() {
+        given(reservaRepository.findAll()).willReturn(ReservaUtility.RESERVASNVACIO);
 
-        assertThrows(java.lang.Exception.class, () -> reservaService.obtenerReservaPorId(1));
+        List<ReservaDTO> reservasSavedDTO = reservaServiceImpl.obtenerReservas();
+
+        assertEquals(ReservaUtility.RESERVASNVACIONSIZE, reservasSavedDTO.size());
+    }
+
+    @Test
+    public void obtenerReservasActivasOk() {
+        given(reservaRepository.findAllByEstado("A")).willReturn(ReservaUtility.RESERVAS);
+
+        List<ReservaDTO> reservasSavedDTO = reservaServiceImpl.obtenerReservasActivas();
+
+        assertEquals(ReservaUtility.RESERVASNSIZE, reservasSavedDTO.size());
+        assertEquals(ReservaUtility.PRECIONTOTALNUNO, reservasSavedDTO.get(0).getPrecioTotal());
+    }
+
+    @Test
+    public void obtenerReservasActivasNotOk() {
+        given(reservaRepository.findAllByEstado("A")).willReturn(ReservaUtility.RESERVASNVACIO);
+
+        List<ReservaDTO> reservasSavedDTO = reservaServiceImpl.obtenerReservasActivas();
+
+        assertEquals(ReservaUtility.RESERVASNVACIONSIZE, reservasSavedDTO.size());
+    }
+
+    @Test
+    public void obtenerReservaPorIdOk() throws Exception {
+        vueloRepository.save(VueloUtility.VUELONUNO);
+        asientoRepository.save(AsientoUtility.ASIENTONUNO);
+        usuarioRepository.save(UsuarioUtility.USUARIONUNO);
+        reservaRepository.save(ReservaUtility.RESERVANUNO);
+
+        given(reservaRepository.existsById(ReservaUtility.IDNUNO)).willReturn(true);
+        given(reservaRepository.getReferenceById(ReservaUtility.IDNUNO)).willReturn(ReservaUtility.RESERVANUNO);
+
+        ReservaDTO reservaSavedDTO = reservaServiceImpl.obtenerReservaPorId(ReservaUtility.IDNUNO);
+
+        assertEquals(ReservaUtility.IDNUNO, reservaSavedDTO.getIdUsuario());
+    }
+
+    @Test
+    public void obtenerReservaPorIdNotOk() {
+        given(reservaRepository.existsById(ReservaUtility.IDNUNO)).willReturn(false);
+
+        assertThrows(Exception.class, () -> reservaServiceImpl.obtenerReservaPorId(ReservaUtility.IDNUNO));
+    }
+
+    @Test
+    public void actualizarReservaOk() throws Exception {
+        given(vueloRepository.existsById(VueloUtility.IDNUNO)).willReturn(true);
+        given(vueloRepository.getReferenceById(VueloUtility.IDNUNO)).willReturn(VueloUtility.VUELONUNO);
+        given(asientoRepository.existsById(AsientoUtility.IDNUNO)).willReturn(true);
+        given(asientoRepository.getReferenceById(AsientoUtility.IDNUNO)).willReturn(AsientoUtility.ASIENTONUNO);
+        given(usuarioRepository.existsById(UsuarioUtility.IDNUNO)).willReturn(true);
+        given(usuarioRepository.getReferenceById(UsuarioUtility.IDNUNO)).willReturn(UsuarioUtility.USUARIONUNO);
+        given(reservaRepository.existsById(ReservaUtility.IDNUNO)).willReturn(true);
+        given(reservaRepository.save(any())).willReturn(ReservaUtility.RESERVANUNO);
+
+        ReservaDTO reservaSavedDTO = reservaServiceImpl.actualizarReserva(ReservaUtility.RESERVADTONUNO);
+
+        assertEquals(ReservaUtility.IDNUNO, reservaSavedDTO.getIdReserva());
+    }
+
+    @Test
+    public void actualizarReservaNotOk() {
+        given(reservaRepository.existsById(ReservaUtility.IDNUNO)).willReturn(false);
+
+        assertThrows(Exception.class, () -> reservaServiceImpl.actualizarReserva(ReservaUtility.RESERVADTONUNO));
     }
 }

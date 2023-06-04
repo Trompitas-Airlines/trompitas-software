@@ -1,88 +1,116 @@
 package co.edu.usbcali.airlinesapp.service;
 
-import co.edu.usbcali.airlinesapp.domain.TipoAsiento;
 import co.edu.usbcali.airlinesapp.dtos.TipoAsientoDTO;
 import co.edu.usbcali.airlinesapp.repository.TipoAsientoRepository;
-import co.edu.usbcali.airlinesapp.services.interfaces.TipoAsientoService;
-
+import co.edu.usbcali.airlinesapp.services.implementation.TipoAsientoServiceImpl;
+import co.edu.usbcali.airlinesapp.utilities.TipoAsientoUtility;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 public class TipoAsientoServiceImplTest {
-    @Autowired
-    private TipoAsientoService tipoAsientoService;
+    @InjectMocks
+    private TipoAsientoServiceImpl tipoAsientoServiceImpl;
 
-    @MockBean
+    @Mock
     private TipoAsientoRepository tipoAsientoRepository;
 
     @Test
-    public void obtenerTipoAsientosPositivo() {
-        TipoAsiento.builder()
-                .idTipoAsiento(1)
-                .descripcion("Ejecutivo")
-                .estado("A")
-                .build();
+    public void guardarTipoAsientoOk() throws Exception {
+        given(tipoAsientoRepository.existsById(TipoAsientoUtility.IDNUNO)).willReturn(false);
+        given(tipoAsientoRepository.save(TipoAsientoUtility.TIPOASIENTONUNO)).willReturn(TipoAsientoUtility.TIPOASIENTONUNO);
 
-        List<TipoAsiento> tipoAsientos = Arrays.asList(TipoAsiento.builder()
-                        .idTipoAsiento(1)
-                        .descripcion("Ejecutivo")
-                        .estado("A")
-                        .build(),
-                TipoAsiento.builder()
-                        .idTipoAsiento(2)
-                        .descripcion("Económico")
-                        .estado("A")
-                        .build());
+        TipoAsientoDTO tipoAsientoSavedDTO = tipoAsientoServiceImpl.guardarTipoAsiento(TipoAsientoUtility.TIPOASIENTODTONUNO);
 
-        Mockito.when(tipoAsientoRepository.findAll()).thenReturn(tipoAsientos);
-
-        List<TipoAsientoDTO> tipoAsientosDTO = tipoAsientoService.obtenerTipoAsientos();
-
-        assertEquals(2, tipoAsientosDTO.size());
-        assertEquals("Ejecutivo", tipoAsientosDTO.get(0).getDescripcion());
+        assertEquals(TipoAsientoUtility.IDNUNO, tipoAsientoSavedDTO.getIdTipoAsiento());
     }
 
     @Test
-    public void obtenerTipoAsientosNegativo() {
-        List<TipoAsiento> tipoAsientos = Arrays.asList();
+    public void guardarTipoAsientoNotOk() {
+        given(tipoAsientoRepository.existsById(TipoAsientoUtility.IDNUNO)).willReturn(true);
 
-        Mockito.when(tipoAsientoRepository.findAll()).thenReturn(tipoAsientos);
-
-        List<TipoAsientoDTO> tipoAsientosDTO = tipoAsientoService.obtenerTipoAsientos();
-
-        assertEquals(0, tipoAsientosDTO.size());
+        assertThrows(Exception.class, () -> tipoAsientoServiceImpl.guardarTipoAsiento(TipoAsientoUtility.TIPOASIENTODTONUNO));
     }
 
     @Test
-    public void obtenerTipoAsientoPorIdPositivo() throws Exception {
-        TipoAsiento tipoAsiento = TipoAsiento.builder()
-                .idTipoAsiento(1)
-                .descripcion("Ejecutivo")
-                .estado("A")
-                .build();
+    public void obtenerTipoAsientosOk() {
+        given(tipoAsientoRepository.findAll()).willReturn(TipoAsientoUtility.TIPOASIENTOS);
 
-        Mockito.when(tipoAsientoRepository.existsById(1)).thenReturn(true);
-        Mockito.when(tipoAsientoRepository.getReferenceById(1)).thenReturn(tipoAsiento);
+        List<TipoAsientoDTO> tipoAsientosSavedDTO = tipoAsientoServiceImpl.obtenerTipoAsientos();
 
-        TipoAsientoDTO tipoAsientoDTO = tipoAsientoService.obtenerTipoAsientoPorId(1);
-
-        assertEquals("Ejecutivo", tipoAsientoDTO.getDescripcion());
+        assertEquals(TipoAsientoUtility.TIPOASIENTOSNSIZE, tipoAsientosSavedDTO.size());
+        assertEquals(TipoAsientoUtility.DESCRIPCIONNUNO, tipoAsientosSavedDTO.get(0).getDescripcion());
     }
 
     @Test
-    public void obtenerTipoAsientoPorIdNegativo() {
-        Mockito.when(tipoAsientoRepository.existsById(1)).thenReturn(false);
+    public void obtenerTipoAsientosNotOk() {
+        given(tipoAsientoRepository.findAll()).willReturn(TipoAsientoUtility.TIPOASIENTOSNVACIO);
 
-        assertThrows(Exception.class, () -> tipoAsientoService.obtenerTipoAsientoPorId(1));
+        List<TipoAsientoDTO> tipoAsientosSavedDTO = tipoAsientoServiceImpl.obtenerTipoAsientos();
+
+        assertEquals(TipoAsientoUtility.TIPOASIENTOSNVACIONSIZE, tipoAsientosSavedDTO.size());
+    }
+
+    @Test
+    public void obtenerTipoAsientosActivosOk() {
+        given(tipoAsientoRepository.findAllByEstado("A")).willReturn(TipoAsientoUtility.TIPOASIENTOS);
+
+        List<TipoAsientoDTO> tipoAsientosSavedDTO = tipoAsientoServiceImpl.obtenerTipoAsientosActivos();
+
+        assertEquals(TipoAsientoUtility.TIPOASIENTOSNSIZE, tipoAsientosSavedDTO.size());
+        assertEquals(TipoAsientoUtility.DESCRIPCIONNUNO, tipoAsientosSavedDTO.get(0).getDescripcion());
+    }
+
+    @Test
+    public void obtenerTipoAsientosActivosNotOk() {
+        given(tipoAsientoRepository.findAllByEstado("A")).willReturn(TipoAsientoUtility.TIPOASIENTOSNVACIO);
+
+        List<TipoAsientoDTO> tipoAsientosSavedDTO = tipoAsientoServiceImpl.obtenerTipoAsientosActivos();
+
+        assertEquals(TipoAsientoUtility.TIPOASIENTOSNVACIONSIZE, tipoAsientosSavedDTO.size());
+    }
+
+    @Test
+    public void obtenerTipoAsientoPorIdOk() throws Exception {
+        tipoAsientoRepository.save(TipoAsientoUtility.TIPOASIENTONUNO);
+
+        given(tipoAsientoRepository.existsById(TipoAsientoUtility.IDNUNO)).willReturn(true);
+        given(tipoAsientoRepository.getReferenceById(TipoAsientoUtility.IDNUNO)).willReturn(TipoAsientoUtility.TIPOASIENTONUNO);
+
+        TipoAsientoDTO tipoAsientoSavedDTO = tipoAsientoServiceImpl.obtenerTipoAsientoPorId(TipoAsientoUtility.IDNUNO);
+
+        assertEquals(TipoAsientoUtility.DESCRIPCIONNUNO, tipoAsientoSavedDTO.getDescripcion());
+    }
+
+    @Test
+    public void obtenerTipoAsientoPorIdNotOk() {
+        given(tipoAsientoRepository.existsById(TipoAsientoUtility.IDNUNO)).willReturn(false);
+
+        assertThrows(Exception.class, () -> tipoAsientoServiceImpl.obtenerTipoAsientoPorId(TipoAsientoUtility.IDNUNO));
+    }
+
+    @Test
+    public void actualizarTipoAsientoOk() throws Exception {
+        given(tipoAsientoRepository.existsById(TipoAsientoUtility.IDNUNO)).willReturn(true);
+        given(tipoAsientoRepository.save(TipoAsientoUtility.TIPOASIENTONUNO)).willReturn(TipoAsientoUtility.TIPOASIENTONUNO);
+
+        TipoAsientoDTO tipoAsientoSavedDTO = tipoAsientoServiceImpl.actualizarTipoAsiento(TipoAsientoUtility.TIPOASIENTODTONUNO);
+
+        assertEquals(TipoAsientoUtility.IDNUNO, tipoAsientoSavedDTO.getIdTipoAsiento());
+    }
+
+    @Test
+    public void actualizarTipoAsientoNotOk() {
+        given(tipoAsientoRepository.existsById(TipoAsientoUtility.IDNUNO)).willReturn(false);
+
+        assertThrows(Exception.class, () -> tipoAsientoServiceImpl.actualizarTipoAsiento(TipoAsientoUtility.TIPOASIENTODTONUNO));
     }
 }

@@ -1,128 +1,145 @@
 package co.edu.usbcali.airlinesapp.service;
 
-
-import co.edu.usbcali.airlinesapp.domain.RolUsuario;
-import co.edu.usbcali.airlinesapp.domain.Usuario;
 import co.edu.usbcali.airlinesapp.dtos.UsuarioDTO;
-import co.edu.usbcali.airlinesapp.services.interfaces.UsuarioService;
+import co.edu.usbcali.airlinesapp.repository.RolUsuarioRepository;
 import co.edu.usbcali.airlinesapp.repository.UsuarioRepository;
+import co.edu.usbcali.airlinesapp.services.implementation.UsuarioServiceImpl;
+import co.edu.usbcali.airlinesapp.utilities.RolUsuarioUtility;
+import co.edu.usbcali.airlinesapp.utilities.UsuarioUtility;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.jdbc.AutoConfigureDataJdbc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
-import java.util.Arrays;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 public class UsuarioServiceImplTest {
-    @Autowired
-    private UsuarioService usuarioService;
+    @InjectMocks
+    private UsuarioServiceImpl usuarioServiceImpl;
 
-    @MockBean
+    @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private RolUsuarioRepository rolUsuarioRepository;
+
     @Test
-    public void obtenerUsuariosNegativo() throws Exception{
-        List<Usuario> usuarios = Arrays.asList();
-        Mockito.when(usuarioRepository.findAll()).thenReturn(usuarios);
-        List<UsuarioDTO> usuariosDTO = usuarioService.obtenerUsuarios();
-        assertEquals(0, usuariosDTO.size());
+    public void guardarUsuarioOk() throws Exception {
+        given(rolUsuarioRepository.existsById(RolUsuarioUtility.IDNUNO)).willReturn(true);
+        given(rolUsuarioRepository.getReferenceById(RolUsuarioUtility.IDNUNO)).willReturn(RolUsuarioUtility.ROLUSUARIONUNO);
+        given(usuarioRepository.existsById(UsuarioUtility.IDNUNO)).willReturn(false);
+        given(usuarioRepository.save(UsuarioUtility.USUARIONUNO)).willReturn(UsuarioUtility.USUARIONUNO);
+
+        UsuarioDTO usuarioSavedDTO = usuarioServiceImpl.guardarUsuario(UsuarioUtility.USUARIODTONUNO);
+
+        assertEquals(UsuarioUtility.IDNUNO, usuarioSavedDTO.getIdUsuario());
     }
 
     @Test
-    public void obtenerUsuariosActivosPositivo(){
-        RolUsuario rolUsuario = RolUsuario.builder()
-                .idRolUsuario(1)
-                .descripcion("Administrador")
-                .estado("A")
-                .build();
+    public void guardarUsuarioNotOk() {
+        given(usuarioRepository.existsById(UsuarioUtility.IDNUNO)).willReturn(true);
 
-        Usuario usuario = Usuario.builder()
-                .idUsuario(1)
-                .rolUsuario(rolUsuario)
-                .cedula("123456789")
-                .nombre("Mauricio")
-                .apellido("Manuel")
-                .correo("mBer@correo.com")
-                .estado("A")
-                .build();
-
-        List<Usuario> usuarios = new ArrayList<>();
-        usuarios.add(usuario);
-
-        Mockito.when(usuarioRepository.getReferenceById(1)).thenReturn(usuario);
-        Mockito.when(usuarioRepository.findAllByEstado("A")).thenReturn(usuarios);
-        List<UsuarioDTO> usuariosDTO = usuarioService.obtenerUsuariosActivos();
-        assertEquals(1, usuariosDTO.size());
-
-
+        assertThrows(Exception.class, () -> usuarioServiceImpl.guardarUsuario(UsuarioUtility.USUARIODTONUNO));
     }
 
     @Test
-    public void obtenerUsuariosActivosNegativo() throws Exception{
+    public void obtenerUsuariosOk() {
+        given(usuarioRepository.findAll()).willReturn(UsuarioUtility.USUARIOS);
 
-        List<Usuario> usuarios = new ArrayList<>();
-        Mockito.when(usuarioRepository.findAllByEstado("I")).thenReturn(usuarios);
-        List<UsuarioDTO> usuariosDTO = usuarioService.obtenerUsuariosActivos();
-        assertEquals(0, usuariosDTO.size());
+        List<UsuarioDTO> usuariosSavedDTO = usuarioServiceImpl.obtenerUsuarios();
 
+        assertEquals(UsuarioUtility.USUARIOSNSIZE, usuariosSavedDTO.size());
+        assertEquals(UsuarioUtility.CEDULANUNO, usuariosSavedDTO.get(0).getCedula());
     }
 
     @Test
-    public void obtenerUsuarioPorIdPositivo() throws Exception{
+    public void obtenerUsuariosNotOk() {
+        given(usuarioRepository.findAll()).willReturn(UsuarioUtility.USUARIOSNVACIO);
 
-        RolUsuario rolUsuario = RolUsuario.builder()
-                .idRolUsuario(1)
-                .descripcion("Administrador")
-                .estado("A")
-                .build();
+        List<UsuarioDTO> usuariosSavedDTO = usuarioServiceImpl.obtenerUsuarios();
 
-        Usuario usuario = Usuario.builder()
-                .idUsuario(1)
-                .rolUsuario(rolUsuario)
-                .cedula("123456789")
-                .nombre("Mauricio")
-                .apellido("Manuel")
-                .correo("mBer@correo.com")
-                .estado("A")
-                .build();
-
-        Mockito.when(usuarioRepository.existsById(1)).thenReturn(true);
-        Mockito.when(usuarioRepository.getReferenceById(1)).thenReturn(usuario);
-        UsuarioDTO usuarioDTO = usuarioService.obtenerUsuarioPorId(1);
-        assertEquals(1, usuarioDTO.getIdUsuario());
-
+        assertEquals(UsuarioUtility.USUARIOSNVACIONSIZE, usuariosSavedDTO.size());
     }
 
     @Test
-    public void obtenerUsuarioPorCedulaNegativo() throws Exception {
+    public void obtenerUsuariosActivosOk() {
+        given(usuarioRepository.findAllByEstado("A")).willReturn(UsuarioUtility.USUARIOS);
 
-        Mockito.when(usuarioRepository.existsByCedula("1020345")).thenReturn(false);
-        UsuarioDTO usuarioDTO = usuarioService.obtenerUsuarioPorCedula("1020345");
-        assertEquals(null, usuarioDTO);
-    }
+        List<UsuarioDTO> usuariosSavedDTO = usuarioServiceImpl.obtenerUsuariosActivos();
 
-
-    @Test
-    public void eliminarUsuarioPositivo() throws Exception{
-
+        assertEquals(UsuarioUtility.USUARIOSNSIZE, usuariosSavedDTO.size());
+        assertEquals(UsuarioUtility.CEDULANUNO, usuariosSavedDTO.get(0).getCedula());
     }
 
     @Test
-    public void eliminarUsuarioNegativo() throws Exception{
+    public void obtenerUsuariosActivosNotOk() {
+        given(usuarioRepository.findAllByEstado("A")).willReturn(UsuarioUtility.USUARIOSNVACIO);
 
+        List<UsuarioDTO> usuariosSavedDTO = usuarioServiceImpl.obtenerUsuariosActivos();
+
+        assertEquals(UsuarioUtility.USUARIOSNVACIONSIZE, usuariosSavedDTO.size());
     }
 
+    @Test
+    public void obtenerUsuarioPorIdOk() throws Exception {
+        rolUsuarioRepository.save(RolUsuarioUtility.ROLUSUARIONUNO);
+        usuarioRepository.save(UsuarioUtility.USUARIONUNO);
 
+        given(usuarioRepository.existsById(UsuarioUtility.IDNUNO)).willReturn(true);
+        given(usuarioRepository.getReferenceById(UsuarioUtility.IDNUNO)).willReturn(UsuarioUtility.USUARIONUNO);
+
+        UsuarioDTO usuarioSavedDTO = usuarioServiceImpl.obtenerUsuarioPorId(UsuarioUtility.IDNUNO);
+
+        assertEquals(UsuarioUtility.IDNUNO, usuarioSavedDTO.getIdUsuario());
+    }
+
+    @Test
+    public void obtenerUsuarioPorIdNotOk() {
+        given(usuarioRepository.existsById(UsuarioUtility.IDNUNO)).willReturn(false);
+
+        assertThrows(Exception.class, () -> usuarioServiceImpl.obtenerUsuarioPorId(UsuarioUtility.IDNUNO));
+    }
+
+    @Test
+    public void obtenerUsuarioPorCedulaOk() throws Exception {
+        rolUsuarioRepository.save(RolUsuarioUtility.ROLUSUARIONUNO);
+        usuarioRepository.save(UsuarioUtility.USUARIONUNO);
+
+        given(usuarioRepository.existsByCedula(UsuarioUtility.CEDULANUNO)).willReturn(true);
+        given(usuarioRepository.getReferenceByCedula(UsuarioUtility.CEDULANUNO)).willReturn(UsuarioUtility.USUARIONUNO);
+
+        UsuarioDTO usuarioSavedDTO = usuarioServiceImpl.obtenerUsuarioPorCedula(UsuarioUtility.CEDULANUNO);
+
+        assertEquals(UsuarioUtility.CEDULANUNO, usuarioSavedDTO.getCedula());
+    }
+
+    @Test
+    public void obtenerUsuarioPorCedulaNotOk() throws Exception {
+        given(usuarioRepository.existsByCedula(UsuarioUtility.CEDULANUNO)).willReturn(false);
+
+        assertNull(usuarioServiceImpl.obtenerUsuarioPorCedula(UsuarioUtility.CEDULANUNO));
+    }
+
+    @Test
+    public void actualizarUsuarioOk() throws Exception {
+        given(rolUsuarioRepository.existsById(RolUsuarioUtility.IDNUNO)).willReturn(true);
+        given(rolUsuarioRepository.getReferenceById(RolUsuarioUtility.IDNUNO)).willReturn(RolUsuarioUtility.ROLUSUARIONUNO);
+        given(usuarioRepository.existsById(UsuarioUtility.IDNUNO)).willReturn(true);
+        given(usuarioRepository.save(UsuarioUtility.USUARIONUNO)).willReturn(UsuarioUtility.USUARIONUNO);
+
+        UsuarioDTO usuarioSavedDTO = usuarioServiceImpl.actualizarUsuario(UsuarioUtility.USUARIODTONUNO);
+
+        assertEquals(UsuarioUtility.IDNUNO, usuarioSavedDTO.getIdUsuario());
+    }
+
+    @Test
+    public void actualizarUsuarioNotOk() {
+        given(usuarioRepository.existsById(UsuarioUtility.IDNUNO)).willReturn(false);
+
+        assertThrows(Exception.class, () -> usuarioServiceImpl.actualizarUsuario(UsuarioUtility.USUARIODTONUNO));
+    }
 }

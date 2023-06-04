@@ -1,166 +1,152 @@
 package co.edu.usbcali.airlinesapp.service;
 
-import co.edu.usbcali.airlinesapp.domain.Aeropuerto;
-import co.edu.usbcali.airlinesapp.domain.Avion;
-import co.edu.usbcali.airlinesapp.domain.Trayecto;
-import co.edu.usbcali.airlinesapp.domain.Vuelo;
 import co.edu.usbcali.airlinesapp.dtos.TrayectoDTO;
+import co.edu.usbcali.airlinesapp.repository.AeropuertoRepository;
+import co.edu.usbcali.airlinesapp.repository.AvionRepository;
 import co.edu.usbcali.airlinesapp.repository.TrayectoRepository;
-import co.edu.usbcali.airlinesapp.services.interfaces.TrayectoService;
-
+import co.edu.usbcali.airlinesapp.repository.VueloRepository;
+import co.edu.usbcali.airlinesapp.services.implementation.TrayectoServiceImpl;
+import co.edu.usbcali.airlinesapp.utilities.AeropuertoUtility;
+import co.edu.usbcali.airlinesapp.utilities.AvionUtility;
+import co.edu.usbcali.airlinesapp.utilities.TrayectoUtility;
+import co.edu.usbcali.airlinesapp.utilities.VueloUtility;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 public class TrayectoServiceImplTest {
-    @Autowired
-    private TrayectoService trayectoService;
+    @InjectMocks
+    private TrayectoServiceImpl trayectoServiceImpl;
 
-    @MockBean
+    @Mock
     private TrayectoRepository trayectoRepository;
 
+    @Mock
+    private AvionRepository avionRepository;
+
+    @Mock
+    private AeropuertoRepository aeropuertoRepository;
+
+    @Mock
+    private VueloRepository vueloRepository;
+
     @Test
-    public void obtenerTrayectosPositivo() {
-        Aeropuerto aeropuerto = Aeropuerto.builder()
-                .idAeropuerto(1)
-                .nombre("Aeropuerto Internacional El Dorado")
-                .iata("BOG")
-                .ubicacion("Bogotá")
-                .estado("A")
-                .build();
+    public void guardarTrayectoOk() throws Exception {
+        given(avionRepository.existsById(AvionUtility.IDNUNO)).willReturn(true);
+        given(avionRepository.getReferenceById(AvionUtility.IDNUNO)).willReturn(AvionUtility.AVIONNUNO);
+        given(aeropuertoRepository.existsById(AeropuertoUtility.IDNUNO)).willReturn(true);
+        given(aeropuertoRepository.getReferenceById(AeropuertoUtility.IDNUNO)).willReturn(AeropuertoUtility.AEROPUERTONUNO);
+        given(aeropuertoRepository.existsById(AeropuertoUtility.IDNDOS)).willReturn(true);
+        given(aeropuertoRepository.getReferenceById(AeropuertoUtility.IDNDOS)).willReturn(AeropuertoUtility.AEROPUERTONDOS);
+        given(vueloRepository.existsById(VueloUtility.IDNUNO)).willReturn(true);
+        given(vueloRepository.getReferenceById(VueloUtility.IDNUNO)).willReturn(VueloUtility.VUELONUNO);
+        given(trayectoRepository.existsById(TrayectoUtility.IDNUNO)).willReturn(false);
+        given(trayectoRepository.save(any())).willReturn(TrayectoUtility.TRAYECTONUNO);
 
-        Avion avion = Avion.builder()
-                .idAvion(1)
-                .modelo("Boeing 737")
-                .estado("A")
-                .build();
+        TrayectoDTO trayectoSavedDTO = trayectoServiceImpl.guardarTrayecto(TrayectoUtility.TRAYECTODTONUNO);
 
-        Vuelo vuelo = Vuelo.builder()
-                .idVuelo(1)
-                .aeropuertoOrigen(aeropuerto)
-                .aeropuertoDestino(aeropuerto)
-                .precio(100000)
-                .horaSalida(new Date())
-                .horaLlegada(new Date())
-                .precioAsientoVip(50000)
-                .precioAsientoNormal(30000)
-                .precioAsientoBasico(10000)
-                .estado("A")
-                .build();
-
-        Trayecto.builder()
-                .idTrayecto(1)
-                .avion(avion)
-                .aeropuertoOrigen(aeropuerto)
-                .aeropuertoDestino(aeropuerto)
-                .horaSalida(new Date())
-                .horaLlegada(new Date())
-                .vuelo(vuelo)
-                .estado("A")
-                .build();
-
-        List<Trayecto> trayectos = Arrays.asList(Trayecto.builder()
-                        .idTrayecto(1)
-                        .avion(avion)
-                        .aeropuertoOrigen(aeropuerto)
-                        .aeropuertoDestino(aeropuerto)
-                        .horaSalida(new Date())
-                        .horaLlegada(new Date())
-                        .vuelo(vuelo)
-                        .estado("A")
-                        .build(),
-                Trayecto.builder()
-                        .idTrayecto(2)
-                        .avion(avion)
-                        .aeropuertoOrigen(aeropuerto)
-                        .aeropuertoDestino(aeropuerto)
-                        .horaSalida(new Date())
-                        .horaLlegada(new Date())
-                        .vuelo(vuelo)
-                        .estado("A")
-                        .build());
-
-        Mockito.when(trayectoRepository.findAll()).thenReturn(trayectos);
-
-        List<TrayectoDTO> trayectosDTO = trayectoService.obtenerTrayectos();
-
-        assertEquals(2, trayectosDTO.size());
-        assertEquals(1, trayectosDTO.get(0).getIdTrayecto());
+        assertEquals(TrayectoUtility.IDNUNO, trayectoSavedDTO.getIdTrayecto());
     }
 
     @Test
-    public void obtenerTrayectosNegativo() {
-        List<Trayecto> trayectos = Arrays.asList();
+    public void guardarTrayectoNotOk() {
+        given(trayectoRepository.existsById(TrayectoUtility.IDNUNO)).willReturn(true);
 
-        Mockito.when(trayectoRepository.findAll()).thenReturn(trayectos);
-
-        List<TrayectoDTO> trayectosDTO = trayectoService.obtenerTrayectos();
-
-        assertEquals(0, trayectosDTO.size());
+        assertThrows(Exception.class, () -> trayectoServiceImpl.guardarTrayecto(TrayectoUtility.TRAYECTODTONUNO));
     }
 
     @Test
-    public void obtenerTrayectosPorIdPositivo() throws Exception {
-        Aeropuerto aeropuerto = Aeropuerto.builder()
-                .idAeropuerto(1)
-                .nombre("Aeropuerto Internacional El Dorado")
-                .iata("BOG")
-                .ubicacion("Bogotá")
-                .estado("A")
-                .build();
+    public void obtenerTrayectosOk() {
+        given(trayectoRepository.findAll()).willReturn(TrayectoUtility.TRAYECTOS);
 
-        Avion avion = Avion.builder()
-                .idAvion(1)
-                .modelo("Boeing 737")
-                .estado("A")
-                .build();
+        List<TrayectoDTO> trayectosSavedDTO = trayectoServiceImpl.obtenerTrayectos();
 
-        Vuelo vuelo = Vuelo.builder()
-                .idVuelo(1)
-                .aeropuertoOrigen(aeropuerto)
-                .aeropuertoDestino(aeropuerto)
-                .precio(100000)
-                .horaSalida(new Date())
-                .horaLlegada(new Date())
-                .precioAsientoVip(50000)
-                .precioAsientoNormal(30000)
-                .precioAsientoBasico(10000)
-                .estado("A")
-                .build();
-
-        Trayecto trayecto = Trayecto.builder()
-                .idTrayecto(1)
-                .avion(avion)
-                .aeropuertoOrigen(aeropuerto)
-                .aeropuertoDestino(aeropuerto)
-                .horaSalida(new Date())
-                .horaLlegada(new Date())
-                .vuelo(vuelo)
-                .estado("A")
-                .build();
-
-        Mockito.when(trayectoRepository.existsById(1)).thenReturn(true);
-        Mockito.when(trayectoRepository.getReferenceById(1)).thenReturn(trayecto);
-
-        TrayectoDTO trayectoDTO = trayectoService.obtenerTrayectoPorId(1);
-
-        assertEquals(1, trayectoDTO.getIdTrayecto());
+        assertEquals(TrayectoUtility.TRAYECTOSNSIZE, trayectosSavedDTO.size());
+        assertEquals(TrayectoUtility.IDNUNO, trayectosSavedDTO.get(0).getIdTrayecto());
     }
 
     @Test
-    public void obtenerTrayectosPorIdNegativo() {
-        Mockito.when(trayectoRepository.existsById(1)).thenReturn(false);
+    public void obtenerTrayectosNotOk() {
+        given(trayectoRepository.findAll()).willReturn(TrayectoUtility.TRAYECTOSNVACIO);
 
-        assertThrows(java.lang.Exception.class, () -> trayectoService.obtenerTrayectoPorId(1));
+        List<TrayectoDTO> trayectosSavedDTO = trayectoServiceImpl.obtenerTrayectos();
+
+        assertEquals(TrayectoUtility.TRAYECTOSNVACIONSIZE, trayectosSavedDTO.size());
+    }
+
+    @Test
+    public void obtenerTrayectosActivosOk() {
+        given(trayectoRepository.findAllByEstado("A")).willReturn(TrayectoUtility.TRAYECTOS);
+
+        List<TrayectoDTO> trayectosSavedDTO = trayectoServiceImpl.obtenerTrayectosActivos();
+
+        assertEquals(TrayectoUtility.TRAYECTOSNSIZE, trayectosSavedDTO.size());
+        assertEquals(TrayectoUtility.IDNUNO, trayectosSavedDTO.get(0).getIdTrayecto());
+    }
+
+    @Test
+    public void obtenerTrayectosActivosNotOk() {
+        given(trayectoRepository.findAllByEstado("A")).willReturn(TrayectoUtility.TRAYECTOSNVACIO);
+
+        List<TrayectoDTO> trayectosSavedDTO = trayectoServiceImpl.obtenerTrayectosActivos();
+
+        assertEquals(TrayectoUtility.TRAYECTOSNVACIONSIZE, trayectosSavedDTO.size());
+    }
+
+    @Test
+    public void obtenerTrayectosPorIdOk() throws Exception {
+        avionRepository.save(AvionUtility.AVIONNUNO);
+        aeropuertoRepository.save(AeropuertoUtility.AEROPUERTONUNO);
+        aeropuertoRepository.save(AeropuertoUtility.AEROPUERTONDOS);
+        vueloRepository.save(VueloUtility.VUELONUNO);
+        trayectoRepository.save(TrayectoUtility.TRAYECTONUNO);
+
+        given(trayectoRepository.existsById(TrayectoUtility.IDNUNO)).willReturn(true);
+        given(trayectoRepository.getReferenceById(TrayectoUtility.IDNUNO)).willReturn(TrayectoUtility.TRAYECTONUNO);
+
+        TrayectoDTO trayectoSavedDTO = trayectoServiceImpl.obtenerTrayectoPorId(TrayectoUtility.IDNUNO);
+
+        assertEquals(TrayectoUtility.IDNUNO, trayectoSavedDTO.getIdTrayecto());
+    }
+
+    @Test
+    public void obtenerTrayectosPorIdNotOk() {
+        given(trayectoRepository.existsById(TrayectoUtility.IDNUNO)).willReturn(false);
+
+        assertThrows(Exception.class, () -> trayectoServiceImpl.obtenerTrayectoPorId(TrayectoUtility.IDNUNO));
+    }
+
+    @Test
+    public void actualizarTrayectoOk() throws Exception {
+        given(avionRepository.existsById(AvionUtility.IDNUNO)).willReturn(true);
+        given(avionRepository.getReferenceById(AvionUtility.IDNUNO)).willReturn(AvionUtility.AVIONNUNO);
+        given(aeropuertoRepository.existsById(AeropuertoUtility.IDNUNO)).willReturn(true);
+        given(aeropuertoRepository.getReferenceById(AeropuertoUtility.IDNUNO)).willReturn(AeropuertoUtility.AEROPUERTONUNO);
+        given(aeropuertoRepository.existsById(AeropuertoUtility.IDNDOS)).willReturn(true);
+        given(aeropuertoRepository.getReferenceById(AeropuertoUtility.IDNDOS)).willReturn(AeropuertoUtility.AEROPUERTONDOS);
+        given(vueloRepository.existsById(VueloUtility.IDNUNO)).willReturn(true);
+        given(vueloRepository.getReferenceById(VueloUtility.IDNUNO)).willReturn(VueloUtility.VUELONUNO);
+        given(trayectoRepository.existsById(TrayectoUtility.IDNUNO)).willReturn(true);
+        given(trayectoRepository.save(any())).willReturn(TrayectoUtility.TRAYECTONUNO);
+
+        TrayectoDTO trayectoSavedDTO = trayectoServiceImpl.actualizarTrayecto(TrayectoUtility.TRAYECTODTONUNO);
+
+        assertEquals(TrayectoUtility.IDNUNO, trayectoSavedDTO.getIdTrayecto());
+    }
+
+    @Test
+    public void actualizarTrayectoNotOk() {
+        given(trayectoRepository.existsById(TrayectoUtility.IDNUNO)).willReturn(false);
+
+        assertThrows(Exception.class, () -> trayectoServiceImpl.actualizarTrayecto(TrayectoUtility.TRAYECTODTONUNO));
     }
 }
