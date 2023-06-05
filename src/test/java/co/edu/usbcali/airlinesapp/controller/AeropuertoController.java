@@ -64,12 +64,4 @@ public class AeropuertoController {
         }
     }
 
-    @PutMapping(value = "/eliminar-aeropuerto/{idAeropuerto}")
-    public ResponseEntity eliminarAeropuerto(@PathVariable("idAeropuerto") Integer idAeropuerto) {
-        try {
-            return new ResponseEntity(aeropuertoService.eliminarAeropuerto(idAeropuerto), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
-        }
-    }
 }

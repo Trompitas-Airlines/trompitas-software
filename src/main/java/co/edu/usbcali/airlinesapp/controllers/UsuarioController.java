@@ -1,7 +1,6 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
 import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
-import co.edu.usbcali.airlinesapp.dtos.TrayectoDTO;
 import co.edu.usbcali.airlinesapp.dtos.UsuarioDTO;
 import co.edu.usbcali.airlinesapp.services.interfaces.UsuarioService;
 
