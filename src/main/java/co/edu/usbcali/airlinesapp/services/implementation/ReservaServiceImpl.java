@@ -1,17 +1,19 @@
 package co.edu.usbcali.airlinesapp.services.implementation;
 
+import co.edu.usbcali.airlinesapp.domain.Asiento;
 import co.edu.usbcali.airlinesapp.domain.Reserva;
+import co.edu.usbcali.airlinesapp.domain.Usuario;
+import co.edu.usbcali.airlinesapp.domain.Vuelo;
 import co.edu.usbcali.airlinesapp.dtos.ReservaDTO;
-import co.edu.usbcali.airlinesapp.mappers.AsientoMapper;
 import co.edu.usbcali.airlinesapp.mappers.ReservaMapper;
-import co.edu.usbcali.airlinesapp.mappers.UsuarioMapper;
-import co.edu.usbcali.airlinesapp.mappers.VueloMapper;
+import co.edu.usbcali.airlinesapp.repository.AsientoRepository;
 import co.edu.usbcali.airlinesapp.repository.ReservaRepository;
-import co.edu.usbcali.airlinesapp.services.interfaces.AsientoService;
+import co.edu.usbcali.airlinesapp.repository.UsuarioRepository;
+import co.edu.usbcali.airlinesapp.repository.VueloRepository;
 import co.edu.usbcali.airlinesapp.services.interfaces.ReservaService;
-
 import co.edu.usbcali.airlinesapp.services.interfaces.UsuarioService;
 import co.edu.usbcali.airlinesapp.services.interfaces.VueloService;
+import co.edu.usbcali.airlinesapp.utilities.MetodosUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,48 +23,72 @@ import java.util.List;
 @Slf4j
 public class ReservaServiceImpl implements ReservaService {
     private final ReservaRepository reservaRepository;
+    private final VueloRepository vueloRepository;
     private final VueloService vueloService;
-    private final AsientoService asientoService;
+    private final AsientoRepository asientoRepository;
+    private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
 
-    public ReservaServiceImpl(ReservaRepository reservaRepository, VueloService vueloService, AsientoService asientoService, UsuarioService usuarioService) {
+    public ReservaServiceImpl(ReservaRepository reservaRepository, VueloRepository vueloRepository, VueloService vueloService, AsientoRepository asientoRepository, UsuarioRepository usuarioRepository, UsuarioService usuarioService) {
         this.reservaRepository = reservaRepository;
+        this.vueloRepository = vueloRepository;
         this.vueloService = vueloService;
-        this.asientoService = asientoService;
+        this.asientoRepository = asientoRepository;
+        this.usuarioRepository = usuarioRepository;
         this.usuarioService = usuarioService;
     }
 
-    public void validarReservaDTO(ReservaDTO reservaDTO) throws Exception {
+    private ReservaDTO guardarOActualizarReserva(ReservaDTO reservaDTO) {
+        Reserva reserva = ReservaMapper.dtoToDomain(reservaDTO);
+
+        Vuelo vuelo = vueloRepository.getReferenceById(reservaDTO.getIdVuelo());
+        Asiento asiento = asientoRepository.getReferenceById(reservaDTO.getIdAsiento());
+        Usuario usuario = usuarioRepository.getReferenceById(reservaDTO.getIdUsuario());
+
+        reserva.setVuelo(vuelo);
+        reserva.setAsiento(asiento);
+        reserva.setUsuario(usuario);
+
+        return ReservaMapper.domainToDTO(reservaRepository.save(reserva));
+    }
+
+    private void validarReservaDTO(ReservaDTO reservaDTO, boolean esGuardar) throws Exception {
         if (reservaDTO == null) {
             throw new Exception("La reserva no puede ser nula");
-        } if (reservaDTO.getIdVuelo() == null) {
-            throw new Exception("El vuelo de la reserva no puede ser nulo");
-        } if (reservaDTO.getIdAsiento() == null) {
-            throw new Exception("El asiento de la reserva no puede ser nulo");
-        } if (reservaDTO.getIdUsuario() == null) {
-            throw new Exception("El usuario de la reserva no puede ser nulo");
-        } if (reservaDTO.getPrecioTotal() < 0) {
-            throw new Exception("El precio total de la reserva no puede ser menor a cero");
+        } if (reservaDTO.getIdVuelo() == null || reservaDTO.getIdVuelo() <= 0) {
+            throw new Exception("El vuelo de la reserva no puede ser nulo o menor o igual a cero");
+        } if (!vueloRepository.existsById(reservaDTO.getIdVuelo())) {
+            throw new Exception("El vuelo con id " + reservaDTO.getIdVuelo() + " no existe");
+        } if (reservaDTO.getIdAsiento() == null || reservaDTO.getIdAsiento() <= 0) {
+            throw new Exception("El asiento de la reserva no puede ser nulo o menor o igual a cero");
+        } if (!asientoRepository.existsById(reservaDTO.getIdAsiento())) {
+            throw new Exception("El asiento con id " + reservaDTO.getIdAsiento() + " no existe");
+        } if (reservaDTO.getIdUsuario() == null || reservaDTO.getIdUsuario() <= 0) {
+            throw new Exception("El usuario de la reserva no puede ser nulo o menor o igual a cero");
+        } if (!usuarioRepository.existsById(reservaDTO.getIdUsuario())) {
+            throw new Exception("El usuario con id " + reservaDTO.getIdUsuario() + " no existe");
+        } if (reservaDTO.getPrecioTotal() <= 0) {
+            throw new Exception("El precio total de la reserva no puede ser menor o igual a cero");
         } if (reservaDTO.getEstadoPago() == null || reservaDTO.getEstadoPago().isBlank() || reservaDTO.getEstadoPago().trim().isEmpty()) {
             throw new Exception("El estado de pago de la reserva no puede ser nulo o vacío");
         } if (reservaDTO.getFecha() == null) {
             throw new Exception("La fecha de la reserva no puede ser nula");
-        } if (reservaDTO.getEstado() == null || reservaDTO.getEstado().isBlank() || reservaDTO.getEstado().trim().isEmpty()) {
+        }  if (reservaDTO.getEstado() == null || reservaDTO.getEstado().isBlank() || reservaDTO.getEstado().trim().isEmpty()) {
             throw new Exception("El estado de la reserva no puede ser nulo o vacío");
+        }
+
+        if (!esGuardar) {
+            if (!reservaRepository.existsById(reservaDTO.getIdReserva())) {
+                throw new Exception("La reserva con id " + reservaDTO.getIdReserva() + " no existe");
+            }
         }
     }
 
     @Override
     public ReservaDTO guardarReserva(ReservaDTO reservaDTO) throws Exception {
-        validarReservaDTO(reservaDTO);
+        validarReservaDTO(reservaDTO, true);
 
-        Reserva reserva = ReservaMapper.dtoToDomain(reservaDTO);
-
-        reserva.setVuelo(VueloMapper.dtoToDomain(vueloService.obtenerVueloPorId(reservaDTO.getIdVuelo())));
-        reserva.setAsiento(AsientoMapper.dtoToDomain(asientoService.obtenerAsientoPorId(reservaDTO.getIdAsiento())));
-        reserva.setUsuario(UsuarioMapper.dtoToDomain(usuarioService.obtenerUsuarioPorId(reservaDTO.getIdUsuario())));
-
-        return ReservaMapper.domainToDTO(reservaRepository.save(reserva));
+        return guardarOActualizarReserva(reservaDTO);
     }
 
     @Override
@@ -100,27 +126,16 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     public ReservaDTO actualizarReserva(ReservaDTO reservaDTO) throws Exception {
-        validarReservaDTO(reservaDTO);
+        validarReservaDTO(reservaDTO, false);
 
-        ReservaDTO reservaSavedDTO = obtenerReservaPorId(reservaDTO.getIdReserva());
-
-        reservaSavedDTO.setPrecioTotal(reservaDTO.getPrecioTotal());
-        reservaSavedDTO.setEstadoPago(reservaDTO.getEstadoPago());
-        reservaSavedDTO.setFecha(reservaDTO.getFecha());
-        reservaSavedDTO.setEstado(reservaDTO.getEstado());
-
-        return guardarReserva(reservaSavedDTO);
+        return guardarOActualizarReserva(reservaDTO);
     }
 
     @Override
     public ReservaDTO eliminarReserva(Integer id) throws Exception {
         ReservaDTO reservaSavedDTO = obtenerReservaPorId(id);
 
-        if (reservaSavedDTO == null) {
-            throw new Exception("La reserva no existe");
-        }
-
-        reservaSavedDTO.setEstado("I");
+        reservaSavedDTO.setEstadoPago("P");
 
         return guardarReserva(reservaSavedDTO);
     }

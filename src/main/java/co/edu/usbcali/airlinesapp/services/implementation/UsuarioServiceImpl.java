@@ -1,56 +1,85 @@
 package co.edu.usbcali.airlinesapp.services.implementation;
 
+import co.edu.usbcali.airlinesapp.domain.RolUsuario;
 import co.edu.usbcali.airlinesapp.domain.Usuario;
 import co.edu.usbcali.airlinesapp.dtos.UsuarioDTO;
-import co.edu.usbcali.airlinesapp.mappers.RolUsuarioMapper;
 import co.edu.usbcali.airlinesapp.mappers.UsuarioMapper;
+import co.edu.usbcali.airlinesapp.repository.RolUsuarioRepository;
 import co.edu.usbcali.airlinesapp.repository.UsuarioRepository;
-import co.edu.usbcali.airlinesapp.services.interfaces.RolUsuarioService;
 import co.edu.usbcali.airlinesapp.services.interfaces.UsuarioService;
-
+import co.edu.usbcali.airlinesapp.utilities.ValidationsUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
 public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
-    private final RolUsuarioService rolUsuarioService;
+    private final RolUsuarioRepository rolUsuarioRepository;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, RolUsuarioService rolUsuarioService) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, RolUsuarioRepository rolUsuarioRepository) {
         this.usuarioRepository = usuarioRepository;
-        this.rolUsuarioService = rolUsuarioService;
+        this.rolUsuarioRepository = rolUsuarioRepository;
     }
 
-    public void validarUsuarioDTO(UsuarioDTO usuarioDTO) throws Exception {
+    private UsuarioDTO guardarOActualizar(UsuarioDTO usuarioDTO) {
+        Usuario usuario = UsuarioMapper.dtoToDomain(usuarioDTO);
+
+        RolUsuario rolUsuario = rolUsuarioRepository.getReferenceById(usuarioDTO.getIdRolUsuario());
+
+        usuario.setRolUsuario(rolUsuario);
+
+        return UsuarioMapper.domainToDTO(usuarioRepository.save(usuario));
+    }
+
+    private void validarUsuarioDTO(UsuarioDTO usuarioDTO, boolean esGuardar) throws Exception {
         if (usuarioDTO == null) {
             throw new Exception("El usuario no puede ser nulo");
         } if (usuarioDTO.getIdRolUsuario() == null || usuarioDTO.getIdRolUsuario() <= 0) {
             throw new Exception("El id del rol del usuario no puede ser nulo o menor o igual a cero");
         } if (usuarioDTO.getCedula() == null || usuarioDTO.getCedula().isBlank() || usuarioDTO.getNombre().trim().isEmpty()) {
             throw new Exception("La cédula del usuario no puede ser nula o vacía");
-        } if (usuarioDTO.getNombre() == null || usuarioDTO.getNombre().isBlank() || usuarioDTO.getNombre().trim().isEmpty()) {
+        } if (!Pattern.matches(ValidationsUtility.PATTERN_CURRENCY_REGEX, usuarioDTO.getCedula())) {
+            throw new Exception("La cédula del usuario no puede contener números entre 0 y 9 y un tamaño máximo de 10 caracteres");
+        } if (usuarioDTO.getNombre().isBlank() || usuarioDTO.getNombre().trim().isEmpty()) {
             throw new Exception("El nombre del usuario no puede ser nulo o vacío");
+        } if (!Pattern.matches(ValidationsUtility.PATTERN_NAME_REGEX, usuarioDTO.getNombre())) {
+            throw new Exception("El nombre del usuario no puede contener números o caracteres especiales");
         } if (usuarioDTO.getApellido() == null || usuarioDTO.getApellido().isBlank() || usuarioDTO.getApellido().trim().isEmpty()) {
             throw new Exception("El apellido del usuario no puede ser nulo o vacío");
+        } if (!Pattern.matches(ValidationsUtility.PATTERN_NAME_REGEX, usuarioDTO.getApellido())) {
+            throw new Exception("El apellido del usuario no puede contener números o caracteres especiales");
         } if (usuarioDTO.getCorreo() == null || usuarioDTO.getCorreo().isBlank() || usuarioDTO.getCorreo().trim().isEmpty()) {
             throw new Exception("El correo del usuario no puede ser nulo o vacío");
+        } if (!Pattern.matches(ValidationsUtility.PATTERN_MAIL_REGEX, usuarioDTO.getCorreo())) {
+            throw new Exception("El correo del usuario no tiene un formato válido");
         } if (usuarioDTO.getEstado() == null || usuarioDTO.getEstado().isBlank() || usuarioDTO.getEstado().trim().isEmpty()) {
             throw new Exception("El estado del usuario no puede ser nulo o vacío");
+        }
+
+        if (esGuardar) {
+            if (usuarioRepository.existsByCedula(usuarioDTO.getCedula())) {
+                throw new Exception("El usuario con cédula " + usuarioDTO.getCedula() + " ya existe");
+            } if (usuarioRepository.existsByCorreo(usuarioDTO.getCorreo())) {
+                throw new Exception("El usuario con correo " + usuarioDTO.getCorreo() + " ya existe");
+            }
+        }
+
+        if (!esGuardar) {
+            if (!usuarioRepository.existsById(usuarioDTO.getIdUsuario())) {
+                throw new Exception("El usuario con id " + usuarioDTO.getIdUsuario() + " no existe");
+            }
         }
     }
 
     @Override
     public UsuarioDTO guardarUsuario(UsuarioDTO usuarioDTO) throws Exception {
-        validarUsuarioDTO(usuarioDTO);
+        validarUsuarioDTO(usuarioDTO, true);
 
-        Usuario usuario = UsuarioMapper.dtoToDomain(usuarioDTO);
-
-        usuario.setRolUsuario(RolUsuarioMapper.dtoToDomain(rolUsuarioService.obtenerRolUsuarioPorId(usuarioDTO.getIdRolUsuario())));
-
-        return UsuarioMapper.domainToDTO(usuarioRepository.save(usuario));
+        return guardarOActualizar(usuarioDTO);
     }
 
     @Override
@@ -78,31 +107,19 @@ public class UsuarioServiceImpl implements UsuarioService {
             return null;
         }
 
-        return UsuarioMapper.domainToDTO(usuarioRepository.findByCedula(cedula));
+        return UsuarioMapper.domainToDTO(usuarioRepository.getReferenceByCedula(cedula));
     }
 
     @Override
     public UsuarioDTO actualizarUsuario(UsuarioDTO usuarioDTO) throws Exception {
-        validarUsuarioDTO(usuarioDTO);
+        validarUsuarioDTO(usuarioDTO, false);
 
-        UsuarioDTO usuarioSavedDTO = obtenerUsuarioPorId(usuarioDTO.getIdUsuario());
-
-        usuarioSavedDTO.setCedula(usuarioDTO.getCedula());
-        usuarioSavedDTO.setNombre(usuarioDTO.getNombre());
-        usuarioSavedDTO.setApellido(usuarioDTO.getApellido());
-        usuarioSavedDTO.setCorreo(usuarioDTO.getCorreo());
-        usuarioSavedDTO.setEstado(usuarioDTO.getEstado());
-
-        return guardarUsuario(usuarioSavedDTO);
+        return guardarOActualizar(usuarioDTO);
     }
 
     @Override
     public UsuarioDTO eliminarUsuario(Integer id) throws Exception {
         UsuarioDTO usuarioSavedDTO = obtenerUsuarioPorId(id);
-
-        if (usuarioSavedDTO == null) {
-            throw new Exception("El usuario no existe");
-        }
 
         usuarioSavedDTO.setEstado("I");
 

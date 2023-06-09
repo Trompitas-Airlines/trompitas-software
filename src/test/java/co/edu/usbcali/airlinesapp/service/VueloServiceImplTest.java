@@ -4,8 +4,8 @@ import co.edu.usbcali.airlinesapp.dtos.VueloDTO;
 import co.edu.usbcali.airlinesapp.repository.AeropuertoRepository;
 import co.edu.usbcali.airlinesapp.repository.VueloRepository;
 import co.edu.usbcali.airlinesapp.services.implementation.VueloServiceImpl;
-import co.edu.usbcali.airlinesapp.utilities.AeropuertoUtility;
-import co.edu.usbcali.airlinesapp.utilities.VueloUtility;
+import co.edu.usbcali.airlinesapp.utilities.AeropuertoUtilityTest;
+import co.edu.usbcali.airlinesapp.utilities.VueloUtilityTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -30,103 +30,103 @@ public class VueloServiceImplTest {
     private AeropuertoRepository aeropuertoRepository;
 
     @Test
-    public void guardarVueloOk() throws Exception {
-        given(aeropuertoRepository.existsById(AeropuertoUtility.IDNUNO)).willReturn(true);
-        given(aeropuertoRepository.getReferenceById(AeropuertoUtility.IDNUNO)).willReturn(AeropuertoUtility.AEROPUERTONUNO);
-        given(aeropuertoRepository.existsById(AeropuertoUtility.IDNDOS)).willReturn(true);
-        given(aeropuertoRepository.getReferenceById(AeropuertoUtility.IDNDOS)).willReturn(AeropuertoUtility.AEROPUERTONDOS);
-        given(vueloRepository.existsById(VueloUtility.IDNUNO)).willReturn(false);
-        given(vueloRepository.save(any())).willReturn(VueloUtility.VUELONUNO);
+    public void guardarVueloPositivo() throws Exception {
+        given(aeropuertoRepository.existsById(AeropuertoUtilityTest.ID_UNO)).willReturn(true);
+        given(aeropuertoRepository.getReferenceById(AeropuertoUtilityTest.ID_UNO)).willReturn(AeropuertoUtilityTest.AEROPUERTO_UNO);
+        given(aeropuertoRepository.existsById(AeropuertoUtilityTest.ID_DOS)).willReturn(true);
+        given(aeropuertoRepository.getReferenceById(AeropuertoUtilityTest.ID_DOS)).willReturn(AeropuertoUtilityTest.AEROPUERTO_DOS);
+        given(vueloRepository.existsById(VueloUtilityTest.ID_UNO)).willReturn(false);
+        given(vueloRepository.save(any())).willReturn(VueloUtilityTest.VUELO_UNO);
 
-        VueloDTO vueloSavedDTO = vueloServiceImpl.guardarVuelo(VueloUtility.VUELODTONUNO);
+        VueloDTO vueloSavedDTO = vueloServiceImpl.guardarVuelo(VueloUtilityTest.VUELODTO_UNO);
 
-        assertEquals(VueloUtility.IDNUNO, vueloSavedDTO.getIdVuelo());
+        assertEquals(VueloUtilityTest.ID_UNO, vueloSavedDTO.getIdVuelo());
     }
 
     @Test
-    public void guardarVueloNotOk() {
-        given(vueloRepository.existsById(VueloUtility.IDNUNO)).willReturn(true);
+    public void guardarVueloNegativo() {
+        given(vueloRepository.existsById(VueloUtilityTest.ID_UNO)).willReturn(true);
 
-        assertThrows(Exception.class, () -> vueloServiceImpl.guardarVuelo(VueloUtility.VUELODTONUNO));
+        assertThrows(Exception.class, () -> vueloServiceImpl.guardarVuelo(VueloUtilityTest.VUELODTO_UNO));
     }
 
     @Test
-    public void obtenerVuelosOk() {
-        given(vueloRepository.findAll()).willReturn(VueloUtility.VUELOS);
+    public void obtenerVuelosPositivo() {
+        given(vueloRepository.findAll()).willReturn(VueloUtilityTest.VUELOS);
 
         List<VueloDTO> vuelosSavedDTO = vueloServiceImpl.obtenerVuelos();
 
-        assertEquals(VueloUtility.VUELOSNSIZE, vuelosSavedDTO.size());
-        assertEquals(VueloUtility.PRECIONUNO, vuelosSavedDTO.get(0).getPrecio());
+        assertEquals(VueloUtilityTest.VUELOS_SIZE, vuelosSavedDTO.size());
+        assertEquals(VueloUtilityTest.PRECIO_UNO, vuelosSavedDTO.get(0).getPrecio());
     }
 
     @Test
-    public void obtenerVuelosNotOk() {
-        given(vueloRepository.findAll()).willReturn(VueloUtility.VUELOSNVACIO);
+    public void obtenerVuelosNegativo() {
+        given(vueloRepository.findAll()).willReturn(VueloUtilityTest.VUELOS_VACIO);
 
         List<VueloDTO> vuelosSavedDTO = vueloServiceImpl.obtenerVuelos();
 
-        assertEquals(VueloUtility.VUELOSNVACIONSIZE, vuelosSavedDTO.size());
+        assertEquals(VueloUtilityTest.VUELOS_VACIO_SIZE, vuelosSavedDTO.size());
     }
 
     @Test
-    public void obtenerVuelosActivosOk() {
-        given(vueloRepository.findAllByEstado("A")).willReturn(VueloUtility.VUELOS);
+    public void obtenerVuelosActivosPositivo() {
+        given(vueloRepository.findAllByEstado("A")).willReturn(VueloUtilityTest.VUELOS);
 
         List<VueloDTO> vuelosSavedDTO = vueloServiceImpl.obtenerVuelosActivos();
 
-        assertEquals(VueloUtility.VUELOSNSIZE, vuelosSavedDTO.size());
-        assertEquals(VueloUtility.PRECIONUNO, vuelosSavedDTO.get(0).getPrecio());
+        assertEquals(VueloUtilityTest.VUELOS_SIZE, vuelosSavedDTO.size());
+        assertEquals(VueloUtilityTest.PRECIO_UNO, vuelosSavedDTO.get(0).getPrecio());
     }
 
     @Test
-    public void obtenerVuelosActivosNotOk() {
-        given(vueloRepository.findAllByEstado("A")).willReturn(VueloUtility.VUELOSNVACIO);
+    public void obtenerVuelosActivosNegativo() {
+        given(vueloRepository.findAllByEstado("A")).willReturn(VueloUtilityTest.VUELOS_VACIO);
 
         List<VueloDTO> vuelosSavedDTO = vueloServiceImpl.obtenerVuelosActivos();
 
-        assertEquals(VueloUtility.VUELOSNVACIONSIZE, vuelosSavedDTO.size());
+        assertEquals(VueloUtilityTest.VUELOS_VACIO_SIZE, vuelosSavedDTO.size());
     }
 
     @Test
-    public void obtenerVueloPorIdOk() throws Exception {
-        aeropuertoRepository.save(AeropuertoUtility.AEROPUERTONUNO);
-        aeropuertoRepository.save(AeropuertoUtility.AEROPUERTONDOS);
-        vueloRepository.save(VueloUtility.VUELONUNO);
+    public void obtenerVueloPorIdPositivo() throws Exception {
+        aeropuertoRepository.save(AeropuertoUtilityTest.AEROPUERTO_UNO);
+        aeropuertoRepository.save(AeropuertoUtilityTest.AEROPUERTO_DOS);
+        vueloRepository.save(VueloUtilityTest.VUELO_UNO);
 
-        given(vueloRepository.existsById(VueloUtility.IDNUNO)).willReturn(true);
-        given(vueloRepository.getReferenceById(VueloUtility.IDNUNO)).willReturn(VueloUtility.VUELONUNO);
+        given(vueloRepository.existsById(VueloUtilityTest.ID_UNO)).willReturn(true);
+        given(vueloRepository.getReferenceById(VueloUtilityTest.ID_UNO)).willReturn(VueloUtilityTest.VUELO_UNO);
 
-        VueloDTO vueloSavedDTO = vueloServiceImpl.obtenerVueloPorId(VueloUtility.IDNUNO);
+        VueloDTO vueloSavedDTO = vueloServiceImpl.obtenerVueloPorId(VueloUtilityTest.ID_UNO);
 
-        assertEquals(VueloUtility.IDNUNO, vueloSavedDTO.getIdVuelo());
+        assertEquals(VueloUtilityTest.ID_UNO, vueloSavedDTO.getIdVuelo());
     }
 
     @Test
-    public void obtenerVueloPorIdNotOk() {
-        given(vueloRepository.existsById(VueloUtility.IDNUNO)).willReturn(false);
+    public void obtenerVueloPorIdNegativo() {
+        given(vueloRepository.existsById(VueloUtilityTest.ID_UNO)).willReturn(false);
 
-        assertThrows(Exception.class, () -> vueloServiceImpl.obtenerVueloPorId(VueloUtility.IDNUNO));
+        assertThrows(Exception.class, () -> vueloServiceImpl.obtenerVueloPorId(VueloUtilityTest.ID_UNO));
     }
 
     @Test
-    public void actualizarVueloOk() throws Exception {
-        given(aeropuertoRepository.existsById(AeropuertoUtility.IDNUNO)).willReturn(true);
-        given(aeropuertoRepository.getReferenceById(AeropuertoUtility.IDNUNO)).willReturn(AeropuertoUtility.AEROPUERTONUNO);
-        given(aeropuertoRepository.existsById(AeropuertoUtility.IDNDOS)).willReturn(true);
-        given(aeropuertoRepository.getReferenceById(AeropuertoUtility.IDNDOS)).willReturn(AeropuertoUtility.AEROPUERTONDOS);
-        given(vueloRepository.existsById(VueloUtility.IDNUNO)).willReturn(true);
-        given(vueloRepository.save(any())).willReturn(VueloUtility.VUELONUNO);
+    public void actualizarVueloPositivo() throws Exception {
+        given(aeropuertoRepository.existsById(AeropuertoUtilityTest.ID_UNO)).willReturn(true);
+        given(aeropuertoRepository.getReferenceById(AeropuertoUtilityTest.ID_UNO)).willReturn(AeropuertoUtilityTest.AEROPUERTO_UNO);
+        given(aeropuertoRepository.existsById(AeropuertoUtilityTest.ID_DOS)).willReturn(true);
+        given(aeropuertoRepository.getReferenceById(AeropuertoUtilityTest.ID_DOS)).willReturn(AeropuertoUtilityTest.AEROPUERTO_DOS);
+        given(vueloRepository.existsById(VueloUtilityTest.ID_UNO)).willReturn(true);
+        given(vueloRepository.save(any())).willReturn(VueloUtilityTest.VUELO_UNO);
 
-        VueloDTO vueloSavedDTO = vueloServiceImpl.actualizarVuelo(VueloUtility.VUELODTONUNO);
+        VueloDTO vueloSavedDTO = vueloServiceImpl.actualizarVuelo(VueloUtilityTest.VUELODTO_UNO);
 
-        assertEquals(VueloUtility.IDNUNO, vueloSavedDTO.getIdVuelo());
+        assertEquals(VueloUtilityTest.ID_UNO, vueloSavedDTO.getIdVuelo());
     }
 
     @Test
-    public void actualizarVueloNotOk() {
-        given(vueloRepository.existsById(VueloUtility.IDNUNO)).willReturn(false);
+    public void actualizarVueloNegativo() {
+        given(vueloRepository.existsById(VueloUtilityTest.ID_UNO)).willReturn(false);
 
-        assertThrows(Exception.class, () -> vueloServiceImpl.actualizarVuelo(VueloUtility.VUELODTONUNO));
+        assertThrows(Exception.class, () -> vueloServiceImpl.actualizarVuelo(VueloUtilityTest.VUELODTO_UNO));
     }
 }

@@ -11,8 +11,8 @@ public class AsientoMapper {
         return AsientoDTO.builder()
                 .idAsiento(asiento.getIdAsiento())
                 .idTipoAsiento(asiento.getTipoAsiento() != null ? asiento.getTipoAsiento().getIdTipoAsiento() : null)
-                .idAvion(asiento.getAvion() != null ? asiento.getAvion().getIdAvion() : null)
                 .ubicacion(asiento.getUbicacion())
+                .precio(asiento.getPrecio())
                 .estado(asiento.getEstado())
                 .build();
     }
@@ -25,6 +25,7 @@ public class AsientoMapper {
         return Asiento.builder()
                 .idAsiento(asientoDTO.getIdAsiento())
                 .ubicacion(asientoDTO.getUbicacion())
+                .precio(asientoDTO.getPrecio())
                 .estado(asientoDTO.getEstado())
                 .build();
     }

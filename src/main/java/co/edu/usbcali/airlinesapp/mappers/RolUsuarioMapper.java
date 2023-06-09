@@ -1,8 +1,6 @@
 package co.edu.usbcali.airlinesapp.mappers;
 
-import co.edu.usbcali.airlinesapp.domain.Avion;
 import co.edu.usbcali.airlinesapp.domain.RolUsuario;
-import co.edu.usbcali.airlinesapp.dtos.AvionDTO;
 import co.edu.usbcali.airlinesapp.dtos.RolUsuarioDTO;
 
 import java.util.List;

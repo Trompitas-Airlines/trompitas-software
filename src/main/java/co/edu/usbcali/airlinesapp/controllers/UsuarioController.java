@@ -1,14 +1,13 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
-import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
-import co.edu.usbcali.airlinesapp.dtos.UsuarioDTO;
 import co.edu.usbcali.airlinesapp.services.interfaces.UsuarioService;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import co.edu.usbcali.airlinesapp.dtos.UsuarioDTO;
+import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
 
 import java.util.List;
 
@@ -62,13 +61,21 @@ public class UsuarioController {
         }
     }
 
-
-    @PutMapping(value = "/actualizarUsuario/{idUsuario}",
+    @PutMapping(path = "/actualizarUsuario",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarUsuario(@RequestBody UsuarioDTO usuarioDTO) {
         try {
             return new ResponseEntity(usuarioService.actualizarUsuario(usuarioDTO), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/eliminarUsuario/{idUsuario}")
+    public ResponseEntity eliminarUsuario(@PathVariable("idUsuario") Integer idUsuario) {
+        try {
+            return new ResponseEntity(usuarioService.eliminarUsuario(idUsuario), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }

@@ -1,15 +1,16 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
-import co.edu.usbcali.airlinesapp.dtos.AeropuertoDTO;
-import co.edu.usbcali.airlinesapp.dtos.AsientoDTO;
-import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
-import co.edu.usbcali.airlinesapp.services.interfaces.AsientoService;
 
+import co.edu.usbcali.airlinesapp.services.interfaces.AsientoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import co.edu.usbcali.airlinesapp.dtos.AsientoDTO;
+import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
+
 
 import java.util.List;
 
@@ -53,14 +54,21 @@ public class AsientoController {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }
     }
-
-
-    @PutMapping(value = "/eliminarAsiento/{idAsiento}",
+    @PutMapping(path = "/actualizarAsiento",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarAsiento(@RequestBody AsientoDTO asientoDTO) {
         try {
             return new ResponseEntity(asientoService.actualizarAsiento(asientoDTO), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/eliminarAsiento/{idAsiento}")
+    public ResponseEntity eliminarAsiento(@PathVariable("idAsiento") Integer idAsiento) {
+        try {
+            return new ResponseEntity(asientoService.eliminarAsiento(idAsiento), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }

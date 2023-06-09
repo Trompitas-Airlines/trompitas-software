@@ -5,11 +5,12 @@ import co.edu.usbcali.airlinesapp.dtos.RolUsuarioDTO;
 import co.edu.usbcali.airlinesapp.mappers.RolUsuarioMapper;
 import co.edu.usbcali.airlinesapp.repository.RolUsuarioRepository;
 import co.edu.usbcali.airlinesapp.services.interfaces.RolUsuarioService;
-
+import co.edu.usbcali.airlinesapp.utilities.ValidationsUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -20,23 +21,35 @@ public class RolUsuarioServiceImpl implements RolUsuarioService {
         this.rolUsuarioRepository = rolUsuarioRepository;
     }
 
-    public void validarRolUsuarioDTO(RolUsuarioDTO rolUsuarioDTO) throws Exception {
+    private RolUsuarioDTO guardarOActualizarRolUsuario(RolUsuarioDTO rolUsuarioDTO) throws Exception {
+        RolUsuario rolUsuario = RolUsuarioMapper.dtoToDomain(rolUsuarioDTO);
+
+        return RolUsuarioMapper.domainToDTO(rolUsuarioRepository.save(rolUsuario));
+    }
+
+    private void validarRolUsuarioDTO(RolUsuarioDTO rolUsuarioDTO, boolean esGuardar) throws Exception {
         if (rolUsuarioDTO == null) {
             throw new Exception("El rol de usuario no puede ser nulo");
         } if (rolUsuarioDTO.getDescripcion() == null || rolUsuarioDTO.getDescripcion().isBlank() || rolUsuarioDTO.getDescripcion().trim().isEmpty()) {
             throw new Exception("La descripción del rol de usuario no puede ser nula o vacía");
+        } if (!Pattern.matches(ValidationsUtility.PATTERN_NAME_REGEX, rolUsuarioDTO.getDescripcion())) {
+            throw new Exception("La descripción del rol de usuario no puede contener números o caracteres especiales");
         } if (rolUsuarioDTO.getEstado() == null || rolUsuarioDTO.getEstado().isBlank() || rolUsuarioDTO.getEstado().trim().isEmpty()) {
             throw new Exception("El estado del rol de usuario no puede ser nulo o vacío");
+        }
+
+        if (!esGuardar) {
+            if (!rolUsuarioRepository.existsById(rolUsuarioDTO.getIdRolUsuario())) {
+                throw new Exception("El rol de usuario con id " + rolUsuarioDTO.getIdRolUsuario() + " no existe");
+            }
         }
     }
 
     @Override
     public RolUsuarioDTO guardarRolUsuario(RolUsuarioDTO rolUsuarioDTO) throws Exception {
-        validarRolUsuarioDTO(rolUsuarioDTO);
+        validarRolUsuarioDTO(rolUsuarioDTO, true);
 
-        RolUsuario rolUsuario = RolUsuarioMapper.dtoToDomain(rolUsuarioDTO);
-
-        return RolUsuarioMapper.domainToDTO(rolUsuarioRepository.save(rolUsuario));
+        return guardarOActualizarRolUsuario(rolUsuarioDTO);
     }
 
     @Override
@@ -60,23 +73,14 @@ public class RolUsuarioServiceImpl implements RolUsuarioService {
 
     @Override
     public RolUsuarioDTO actualizarRolUsuario(RolUsuarioDTO rolUsuarioDTO) throws Exception {
-        validarRolUsuarioDTO(rolUsuarioDTO);
+        validarRolUsuarioDTO(rolUsuarioDTO, false);
 
-        RolUsuarioDTO rolUsuarioSavedDTO = obtenerRolUsuarioPorId(rolUsuarioDTO.getIdRolUsuario());
-
-        rolUsuarioSavedDTO.setDescripcion(rolUsuarioDTO.getDescripcion());
-        rolUsuarioSavedDTO.setEstado(rolUsuarioDTO.getEstado());
-
-        return guardarRolUsuario(rolUsuarioSavedDTO);
+        return guardarOActualizarRolUsuario(rolUsuarioDTO);
     }
 
     @Override
     public RolUsuarioDTO eliminarRolUsuario(Integer id) throws Exception {
         RolUsuarioDTO rolUsuarioSavedDTO = obtenerRolUsuarioPorId(id);
-
-        if (rolUsuarioSavedDTO == null) {
-            throw new Exception("El rol de usuario no existe");
-        }
 
         rolUsuarioSavedDTO.setEstado("I");
 

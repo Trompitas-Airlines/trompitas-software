@@ -1,15 +1,13 @@
 package co.edu.usbcali.airlinesapp.controllers;
 
-import co.edu.usbcali.airlinesapp.dtos.AeropuertoDTO;
-import co.edu.usbcali.airlinesapp.dtos.AvionDTO;
-import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
 import co.edu.usbcali.airlinesapp.services.interfaces.AvionService;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import co.edu.usbcali.airlinesapp.dtos.AvionDTO;
+import co.edu.usbcali.airlinesapp.dtos.MensajeDTO;
 
 import java.util.List;
 
@@ -54,13 +52,21 @@ public class AvionController {
         }
     }
 
-
-    @PutMapping(value = "/actualizarAvion/{idAvion}",
+    @PutMapping(path = "/actualizarAvion",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity actualizarAvion(@RequestBody AvionDTO avionDTO) {
         try {
             return new ResponseEntity(avionService.actualizarAvion(avionDTO), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/eliminarAvion/{idAvion}")
+    public ResponseEntity eliminarAvion(@PathVariable("idAvion") Integer idAvion) {
+        try {
+            return new ResponseEntity(avionService.eliminarAvion(idAvion), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(MensajeDTO.builder().mensaje(e.getMessage()).build(), HttpStatus.BAD_REQUEST);
         }
